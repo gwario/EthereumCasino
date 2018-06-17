@@ -8,11 +8,12 @@ import "./Game.sol";
  * @author mariogastegger
  * @dev A slot machine where the chance of winning depends on the players address and a random number.
  */
-contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver {
+contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness {
 
     /*
      * Fields.
      */
+
     /** @dev Duration[s]= duration[block] * 15[s/block] = 20 * 15 = 300s = 5min */
     uint8 internal constant TARGET_BLOCK_OFFSET_MAX = 20;
     /** @dev Duration[s]= duration[block] * 15[s/block] = 3 * 15 = 45s */
@@ -41,8 +42,8 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
 
     constructor(
         uint _prize, uint _price, uint _deposit, uint _possibilities,
-        address _tokenAddress, uint8 _targetBlockOffset
-    ) Game(_tokenAddress) SinglePlayerRandomness() public {
+        address _gamblingHallAddress, uint8 _targetBlockOffset
+    ) Game(_gamblingHallAddress) SinglePlayerRandomness() public {
         require(PRIZE_MIN <= _prize);
         require(_price < _prize);
         require(PRICE_MIN <= _price);
@@ -67,17 +68,17 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
     /*
      * Business functions.
      */
-    function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success) {
-        //TODO pass payment through to the casino owner!
-        success = true;
-    }
-
 
     /**
      * @dev Pulls the lever of the slot machine.
      * @dev Starts the commit phase.
      */
     function pullTheLever() external isAvailable {
+
+        assert(gamblingHall.token().transfer(
+                address(gamblingHall.casino()),
+                price.add(deposit))
+        );
 
         uint guess = uint(tx.origin) % possibilities;
 
@@ -94,8 +95,10 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         bool guessCorrect = guessedRight(possibilities);
 
         if(guessCorrect) {
-            //TODO transfer prize
-            //TODO return deposit
+            assert(gamblingHall.token().transfer(
+                    address(gamblingHall.casino()),
+                    price.add(deposit))
+            );
         } else {
             //TODO return deposit
         }

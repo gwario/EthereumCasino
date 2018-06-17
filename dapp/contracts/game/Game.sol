@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 import "../bank/CasinoToken.sol";
+import "./GamblingHall.sol";
 
 /**
  * @title Game
@@ -17,14 +18,16 @@ contract Game is RBAC {
     /** @dev The superviser of this game. Collects unclaimed prizes */
     string constant public ROLE_SUPERVISER = "superviser";
 
-    CasinoToken internal token;
+    GamblingHall public gamblingHall;
 
     /** @dev whether this game is currently available. */
     bool public available;
 
 
-    constructor(address _tokenAddress) internal {
-        require(_tokenAddress != address(0));
+    constructor(address _gamblingHallAddress) internal {
+        require(_gamblingHallAddress != address(0));
+
+        gamblingHall = GamblingHall(_gamblingHallAddress);
 
         addRole(msg.sender, ROLE_SUPERVISER);
 
@@ -72,12 +75,12 @@ contract Game is RBAC {
      */
 
     /**
-     * @dev Sets a new token.
-     * @param _tokenAddress the address of a token.
+     * @dev Sets a new gambling hall.
+     * @param _gamblingHallAddress the address of a gambling hall.
      */
-    function setToken(address _tokenAddress) external isNotAvailable onlyRole(ROLE_SUPERVISER) {
-        require(_tokenAddress != address(0));
+    function setGamblingHall(address _gamblingHallAddress) external isNotAvailable onlyRole(ROLE_SUPERVISER) {
+        require(_gamblingHallAddress != address(0));
 
-        token = CasinoToken(_tokenAddress);
+        gamblingHall = GamblingHall(_gamblingHallAddress);
     }
 }

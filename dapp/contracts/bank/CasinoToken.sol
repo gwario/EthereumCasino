@@ -2,13 +2,14 @@ pragma solidity ^0.4.23;
 
 import "./Mintable223Token.sol";
 import "./Burnable223Token.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
 
 /**
  * @title Bank
  * @author mariogastegger
  * @dev The token provider for a casino.
  */
-contract CasinoToken is Burnable223Token, Mintable223Token {
+contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20 {
 
     /*
      * Fields.

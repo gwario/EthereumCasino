@@ -1,9 +1,12 @@
 pragma solidity ^0.4.23;
+
 import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "../Casino.sol";
+import "./FirstGamblingHall.sol";
 
 /**
- * @title HasGames
+ * @title GamblingHall
  * @author mariogastegger
  * @dev Allows for a casino to host games.
  */
@@ -18,21 +21,12 @@ contract GamblingHall is RBAC {
     /*
      * Fields.
      */
-    string internal constant ROLE_ADMIN = "admin";
-
-    bytes8 internal constant GAME_TYPE_SLOTMACHINE = "slotV1.0";
-
-    /** @dev Mapping of game name to game info. */
-    mapping (bytes32 => GameInfo) nameGame;
-    /** @dev List of game names. */
-    bytes32[] gameNames;
-
-
-    address internal casinoAddress;
+    string internal constant ROLE_MANAGER = "manager";
 
     /**
      * @title GameInfo
      * @dev Holds information about a game.
+     * @dev to extend this, create additional fields and an own map an link them to this map.
      */
     struct GameInfo {
         uint256 listPointer;
@@ -42,11 +36,37 @@ contract GamblingHall is RBAC {
         bool isPresent;
     }
 
-    constructor(address _admin) {
-        require(_admin != address(0));
 
-        addRole(_admin, ROLE_ADMIN);
+    Casino public casino;
+
+    /** @dev Mapping of game name to game info. For extensions of  */
+    mapping (bytes32 => GameInfo) nameGame;
+    /** @dev List of game names. */
+    bytes32[] gameNames;
+
+
+    constructor() {
+        addRole(msg.sender, ROLE_MANAGER);
     }
+
+
+    /*
+     * Modifiers.
+     */
+
+    /** @dev requires the casino to be set. */
+    modifier hasCasino() {
+        require(address(casino) != address(0));
+        _;
+    }
+
+    /** @dev requires the token to be set. */
+    modifier hasToken() {
+        require(address(casino) != address(0));
+        require(address(casino.token()) != address(0));
+        _;
+    }
+
 
     /*
      * Business functions.
@@ -59,7 +79,7 @@ contract GamblingHall is RBAC {
      * @param _gameAddress the address of the game.
      */
     //TEST:
-    function addGame(bytes32 _gameName, bytes8 _gameType, address _gameAddress) external onlyRole(ROLE_ADMIN) {
+    function addGameInternal(bytes32 _gameName, bytes8 _gameType, address _gameAddress) internal hasCasino onlyRole(ROLE_MANAGER) {
         //TODO check game interface...
         //- same bank
         //- type one of
@@ -81,7 +101,7 @@ contract GamblingHall is RBAC {
      * @param _name the name of the game to be removed.
      */
     //TEST:
-    function removeGame(bytes32 _name) external onlyRole(ROLE_ADMIN) {
+    function removeGameInternal(bytes32 _name) internal onlyRole(ROLE_MANAGER) {
         //TODO
         require(nameGame[_name].isPresent);
 
@@ -101,7 +121,22 @@ contract GamblingHall is RBAC {
      * @return all games.
      */
     //TEST:
-    function getGames() external view returns (bytes32[]) {
+    function getGamesInternal() internal view returns (bytes32[]) {
         return gameNames;
+    }
+
+
+    /*
+     * Maintenance functions.
+     */
+
+    /**
+     * @dev sets the casino.
+     * @param _casinoAddress the casino address.
+     */
+    function setCasino(address _casinoAddress) external onlyRole(ROLE_MANAGER) {
+        require(_casinoAddress != address(0));
+
+        casino = Casino(_casinoAddress);
     }
 }
