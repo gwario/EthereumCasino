@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {CasinoService} from "./service/casino.service";
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,18 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'app';
+
+  casinoOwner: string;
+  casinoAddress: string;
+
+  constructor(private casino: CasinoService) {
+    casino.getCasinoOwner().then(value => {
+      this.casinoOwner = value;
+    });
+
+    casino.getCasinoAddress().then(value => {
+      this.casinoAddress = value;
+    });
+  }
 }
+
