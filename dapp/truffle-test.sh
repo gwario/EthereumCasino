@@ -1,2 +1,2 @@
 #!/bin/sh
-truffle test
+truffle test --network ganache

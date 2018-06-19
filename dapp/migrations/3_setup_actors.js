@@ -1,7 +1,5 @@
 const CONF = require("../conf.json");
 
-const CasinoToken = artifacts.require("./bank/CasinoToken.sol");
-const Casino = artifacts.require("./Casino.sol");
 
 module.exports = function(deployer, network, accounts) {
 

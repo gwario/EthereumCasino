@@ -1,9 +1,15 @@
 const CONF = require("../conf.json");
 const BigNumber = require('bignumber.js');
+const fs = require('fs');
+
+const metaDataFile = `${__dirname}/../build/contracts/NewVegas.json`;
+const metaData = require(metaDataFile);
+
 
 const CasinoToken = artifacts.require("./token/CasinoToken.sol");
 const GamblingHall = artifacts.require("./SimpleGamblingHall.sol");
 const SlotMachine = artifacts.require("./game/AllOrNothingSlotmachine.sol");
+
 const Casino = artifacts.require("./NewVegas.sol");
 
 module.exports = function(deployer, network, accounts) {
@@ -35,15 +41,15 @@ module.exports = function(deployer, network, accounts) {
 
     return deployer
         .deploy(CasinoToken, {from: TOKEN_OWNER})
-        .then(() => CasinoToken.deployed())
-        .catch(error => console.error("2_CasinoToken", error))
-        .then(instance => {
+        .then(function() { return CasinoToken.deployed(); })
+        .catch(function(error) { console.error("2_CasinoToken", error); })
+        .then(function(instance) {
             console.debug("2_CasinoToken deployed");
             casinoToken = instance;
             deployer.deploy(GamblingHall, {from: GAMBLING_HALL_OWNER})
-            .then(() => GamblingHall.deployed())
-            .catch(error => console.error("2_GamblingHall", error))
-            .then(instance => {
+            .then(function() { return GamblingHall.deployed(); })
+            .catch(function(error) { console.error("2_GamblingHall", error); })
+            .then(function(instance) {
                 console.debug("2_GamblingHall deployed");
                 gamblingHall = instance;
                 //2 <= _prize, _price < _prize
@@ -56,20 +62,24 @@ module.exports = function(deployer, network, accounts) {
                     SLOTMACHINE_POSSIBILITIES.toNumber(), gamblingHall.address, SLOTMACHINE_TARGET_BLOCK_OFFSET.toNumber(),
                     {from: SLOTMACHINE_OWNER}
                 )
-                .then(() => SlotMachine.deployed())
-                .catch(error => console.error("2_Slotmachine", error))
-                .then(instance => {
+                .then(function() { return SlotMachine.deployed(); })
+                .catch(function(error) { console.error("2_Slotmachine", error); })
+                .then(function(instance) {
                     console.debug("2_Slotmachine deployed");
                     slotmachine = instance;
                     deployer.deploy(Casino, casinoToken.address, gamblingHall.address, INITIAL_TOKEN_PRICE.toNumber(), INITIAL_EXCHANGE_FEE.toNumber(), {from: CASINO_OWNER})
-                    .then(() => Casino.deployed())
-                    .catch(error => console.error("2_Casino", error))
-                    .then(instance => {
+                    .then(function() { return Casino.deployed(); })
+                    .catch(function(error) { console.error("2_Casino", error); })
+                    .then(function(instance) {
                         console.debug("2_Casino deployed");
                         casino = instance;
                         casino.send(PRODUCTION_AMOUNT.times(INITIAL_TOKEN_PRICE).toNumber(), {from:CASINO_OWNER});
                         casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
                         gamblingHall.setCasino(casino.address, {from: GAMBLING_HALL_OWNER});
+
+                        metaData.networks[deployer.network_id] = {};
+                        metaData.networks[deployer.network_id].address = casino.address;
+                        fs.writeFileSync(metaDataFile, JSON.stringify(metaData, null, 4));
                     });
                 });
             });

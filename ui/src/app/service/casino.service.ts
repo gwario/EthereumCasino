@@ -6,7 +6,7 @@ import * as TruffleContract from '../../../node_modules/truffle-contract';
 declare let require: any;
 declare let window: any;
 
-let casinoAbi = require('../../../../dapp/build/contracts/Casino.json');
+let casinoAbi = require('../../../../dapp/build/contracts/NewVegas.json');
 
 @Injectable({
   providedIn: 'root'
@@ -25,15 +25,10 @@ export class CasinoService {
     }
     window.web3 = new Web3(this.web3Provider);
 
-    //old version
-    // this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
-
     const casinoContract = TruffleContract(casinoAbi);
     casinoContract.setProvider(this.web3Provider);
-    // this.casinoContract = this.fix(casinoContract);
+    // this.casinoContract = this.fix(casinoContract);//seems to work without this now
     this.casinoContract = casinoContract;
-
-    // window.web3 = new Web3(this.web3Provider);
   }
 
   getAccountInfo() {

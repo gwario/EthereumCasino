@@ -115,6 +115,9 @@ contract Casino is RBAC, ERC223Receiver {
     /** @dev the name of the casino. */
     string public name;
 
+    /** @dev the owner of the casino. */
+    address public owner;
+
     CasinoToken public token;
     GamblingHall public gamblingHall;
 
@@ -141,12 +144,13 @@ contract Casino is RBAC, ERC223Receiver {
         token = CasinoToken(_tokenAddress);
         gamblingHall = GamblingHall(_gamingHallAddress);
 
+        owner = msg.sender;
         opened = false;
         tokenPrice = _tokenPrice;
         exchangeFee = _exchangeFee;
 
-        addRole(msg.sender, ROLE_OWNER);
-        addRole(msg.sender, ROLE_MANAGER);
+        addRole(owner, ROLE_OWNER);
+        addRole(owner, ROLE_MANAGER);
     }
 
     /*

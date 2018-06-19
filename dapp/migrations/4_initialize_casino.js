@@ -1,10 +1,5 @@
 const CONF = require("../conf.json");
 
-const CasinoToken = artifacts.require("./token/CasinoToken.sol");
-const SlotMachine = artifacts.require("./game/AllOrNothingSlotmachine.sol");
-const Casino = artifacts.require("./NewVegas.sol");
-const GamblingHall = artifacts.require("./SimpleGamblingHall.sol");
-
 module.exports = function(deployer, network, accounts) {
 
     const INITIAL_TOKEN_PRICE = 2345678910111213; //about 1€
