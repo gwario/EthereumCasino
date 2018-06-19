@@ -10,7 +10,7 @@ import "./bank/CasinoToken.sol";
  * @author mariogastegger
  * @dev The casino.
  */
-contract Casino is RBAC {
+contract Casino is RBAC, ERC223Receiver {
     using SafeMath for uint256;
 
     /*
@@ -140,6 +140,23 @@ contract Casino is RBAC {
     function payout() external onlyRole(ROLE_OWNER) {
         //TODO check if enough mony remains to payout all customers.
         //TODO transfer to the beneficiary ETHER
+    }
+
+    //TODO do we need this?
+    /** @dev has to be implmented by a casino to handle prize payout and stuff... */
+    function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success);
+
+
+    /**
+     * @dev Pays the win to the winner.
+     * @param _customer the winner.
+     * @param _prize the prize.
+     */
+    function payOutWin(address _customer, uint _prize) returns (bool) {
+        //TODO make sure only the games can call this!
+        //TODO or pass the call to the hall and then to the casino
+        ...gamingHall.getGames();
+        return token.transfer(_customer, _prize);
     }
 
     /*

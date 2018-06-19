@@ -12,6 +12,33 @@ import "./GamblingHall.sol";
 contract Game is RBAC {
 
     /*
+     * Events.
+     */
+
+    /**
+     * @dev Emitted when the game is played.
+     * @param _customer the customer, i.e. the gambler.
+     * @param _game the name of the game.
+     */
+    event CustomerPlays(address _customer, bytes32 _game);
+
+    /**
+     * @dev Emitted when the customer has won at the game.
+     * @param _customer the customer, i.e. the gambler.
+     * @param _game the name of the game.
+     * @param _prize the prize which was won.
+     */
+    event CustomerWon(address _customer, bytes32 _game, uint _prize);
+
+    /**
+     * @dev Emitted when the customer has lost a the the game.
+     * @param _customer the customer, i.e. the gambler.
+     * @param _game the name of the game.
+     */
+    event CustomerLost(address _customer, bytes32 _game);
+
+
+    /*
      * Fields.
      */
 
@@ -20,13 +47,16 @@ contract Game is RBAC {
 
     GamblingHall public gamblingHall;
 
+    bytes32 public name;
+
     /** @dev whether this game is currently available. */
     bool public available;
 
 
-    constructor(address _gamblingHallAddress) internal {
+    constructor(bytes32 _name, address _gamblingHallAddress) internal {
         require(_gamblingHallAddress != address(0));
 
+        name = _name;
         gamblingHall = GamblingHall(_gamblingHallAddress);
 
         addRole(msg.sender, ROLE_SUPERVISER);

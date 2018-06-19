@@ -3,7 +3,6 @@ pragma solidity ^0.4.23;
 import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../Casino.sol";
-import "./FirstGamblingHall.sol";
 
 /**
  * @title GamblingHall
@@ -40,12 +39,13 @@ contract GamblingHall is RBAC {
     Casino public casino;
 
     /** @dev Mapping of game name to game info. For extensions of  */
-    mapping (bytes32 => GameInfo) nameGame;
+    mapping (bytes32 => GameInfo) nameGameInfo;
     /** @dev List of game names. */
     bytes32[] gameNames;
 
 
-    constructor() {
+    //TEST:
+    constructor() internal {
         addRole(msg.sender, ROLE_MANAGER);
     }
 
@@ -55,12 +55,14 @@ contract GamblingHall is RBAC {
      */
 
     /** @dev requires the casino to be set. */
+    //TEST:
     modifier hasCasino() {
         require(address(casino) != address(0));
         _;
     }
 
     /** @dev requires the token to be set. */
+    //TEST:
     modifier hasToken() {
         require(address(casino) != address(0));
         require(address(casino.token()) != address(0));
@@ -79,14 +81,10 @@ contract GamblingHall is RBAC {
      * @param _gameAddress the address of the game.
      */
     //TEST:
-    function addGameInternal(bytes32 _gameName, bytes8 _gameType, address _gameAddress) internal hasCasino onlyRole(ROLE_MANAGER) {
-        //TODO check game interface...
-        //- same bank
-        //- type one of
+    function addGame(bytes32 _gameName, bytes8 _gameType, address _gameAddress) external hasCasino onlyRole(ROLE_MANAGER) {
+        require(!nameGameInfo[_gameName].isPresent);
 
-        require(!nameGame[_gameName].isPresent);
-
-        nameGame[_gameName] = GameInfo({
+        nameGameInfo[_gameName] = GameInfo({
             listPointer: gameNames.length,
             gameName: _gameName,
             gameType: _gameType,
@@ -101,28 +99,37 @@ contract GamblingHall is RBAC {
      * @param _name the name of the game to be removed.
      */
     //TEST:
-    function removeGameInternal(bytes32 _name) internal onlyRole(ROLE_MANAGER) {
-        //TODO
-        require(nameGame[_name].isPresent);
+    function removeGame(bytes32 _name) external onlyRole(ROLE_MANAGER) {
+        require(nameGameInfo[_name].isPresent);
 
-        uint gameToDelete = nameGame[_name].listPointer;
+        uint gameToDelete = nameGameInfo[_name].listPointer;
         bytes32 gameToMove = gameNames[gameNames.length.sub(1)];
 
         //https://ethereum.stackexchange.com/a/13168/39566
         //replace deleted game
         gameNames[gameToDelete] = gameToMove;
-        nameGame[gameToMove].listPointer = gameToDelete;
+        nameGameInfo[gameToMove].listPointer = gameToDelete;
 
         gameNames.length = gameNames.length.sub(1);
-        delete nameGame[_name];
+        delete nameGameInfo[_name];
     }
 
     /**
      * @return all games.
      */
     //TEST:
-    function getGamesInternal() internal view returns (bytes32[]) {
+    function getGames() external view returns (bytes32[]) {
         return gameNames;
+    }
+
+    /**
+     * @dev unpacks the game's address.
+     * @param _gameName The game's name, i.e. the key of the games mapping.
+     * @return the address of the game.
+     */
+    //TEST:
+    function getGameAddress(bytes32 _gameName) external view returns (address) {
+        return nameGameInfo[_gameName].gameAddress;
     }
 
 
@@ -134,6 +141,7 @@ contract GamblingHall is RBAC {
      * @dev sets the casino.
      * @param _casinoAddress the casino address.
      */
+    //TEST:
     function setCasino(address _casinoAddress) external onlyRole(ROLE_MANAGER) {
         require(_casinoAddress != address(0));
 

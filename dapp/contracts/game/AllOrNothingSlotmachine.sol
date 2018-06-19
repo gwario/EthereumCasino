@@ -8,7 +8,7 @@ import "./Game.sol";
  * @author mariogastegger
  * @dev A slot machine where the chance of winning depends on the players address and a random number.
  */
-contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness {
+contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver {
 
     /*
      * Fields.
@@ -41,9 +41,9 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness {
 
 
     constructor(
-        uint _prize, uint _price, uint _deposit, uint _possibilities,
+        bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities,
         address _gamblingHallAddress, uint8 _targetBlockOffset
-    ) Game(_gamblingHallAddress) SinglePlayerRandomness() public {
+    ) Game(_name, _gamblingHallAddress) SinglePlayerRandomness() public {
         require(PRIZE_MIN <= _prize);
         require(_price < _prize);
         require(PRICE_MIN <= _price);
@@ -70,38 +70,82 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness {
      */
 
     /**
-     * @dev Pulls the lever of the slot machine.
-     * @dev Starts the commit phase.
+     * Handles the customer actions along with the transfer.
      */
-    function pullTheLever() external isAvailable {
+    function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success) {
+        require(msg.sender == address(gamblingHall.casino().token()));
+        //the only allowed caller is the token contract.
 
-        assert(gamblingHall.token().transfer(
-                address(gamblingHall.casino()),
-                price.add(deposit))
-        );
+        if(keccak256(_data) == keccak256(DATA_PULL_THE_LEVER)) {
 
-        uint guess = uint(tx.origin) % possibilities;
+            pullTheLever(_origin);
+
+        } else if(keccak256(_data) == keccak256(DATA_CLAIM)) {
+
+            claim(_origin);
+        }
+    }
+
+
+    /**
+     * @dev String to be used in data of a ERC233 transfer to pull the lever of the slot machine.
+     */
+    bytes constant public DATA_PULL_THE_LEVER = "pullTheLever";
+
+    /**
+     * @dev Makes a guess for the Pulls the lever of the slot machine.
+     * @param _customer The customer, i.e. the gambler.
+     * @param _value the amount of tokens sent by the customer.
+     */
+    function pullTheLever(address _customer, uint _value) internal isAvailable {
+        require(_value == price.add(deposit));
+
+        uint guess = uint(_customer) % possibilities;
 
         setTarget(guess, block.number.add(targetBlockOffset));
+
+        //transfer price to the casino
+        assert(gamblingHall.token().transfer(
+                address(gamblingHall.casino()), //to
+                price)                          //value
+        );
+
+        emit CustomerPlays(_customer, name);
     }
 
     /**
-     * @dev Claims the prize.
-     * @dev Starts the claim phase.
+     * @dev String to be used in data of a ERC233 transfer to claim the prize of the slot machine.
      */
-    function claim() external isAvailable {
+    bytes constant public DATA_CLAIM = "claim";
+
+    /**
+     * @dev If the guess was correct, transfers the prize and the deposit to the customer.
+     * @dev If the guess was wrong, transfers the price to the casino and returns the deposit.
+     * @param _customer The customer, i.e. the gambler.
+     */
+    function claim(address _customer) internal isAvailable //TODO make sure its not done in this block {
 
         //throws already
         bool guessCorrect = guessedRight(possibilities);
 
         if(guessCorrect) {
-            assert(gamblingHall.token().transfer(
-                    address(gamblingHall.casino()),
-                    price.add(deposit))
-            );
+
+            //assume casino has enough tokens
+            //requests the casino to payout the prize
+            assert(gamblingHall.casino().payOutWin(_customer, prize));
+
+            emit CustomerWon(_customer, name, prize);
+
         } else {
-            //TODO return deposit
+
+            emit CustomerLost(_customer, name);
         }
+
+        //pays back the deposit
+        assert(gamblingHall.token().transfer(
+                _customer,  //to
+                deposit)    //value
+        );
 
         delete playerGuess[tx.origin];
         delete playerTargetBlock[tx.origin];
