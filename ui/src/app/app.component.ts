@@ -10,14 +10,19 @@ export class AppComponent {
 
   casinoOwner: string;
   casinoAddress: string;
+  casinoName: string;
 
   constructor(private casino: CasinoService) {
-    casino.getCasinoOwner().then(value => {
+    casino.getOwner().then(value => {
       this.casinoOwner = value;
     });
 
-    casino.getCasinoAddress().then(value => {
+    casino.getAddress().then(value => {
       this.casinoAddress = value;
+    });
+
+    casino.getName().then(value => {
+      this.casinoName = value;
     });
   }
 }

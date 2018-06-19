@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 
 import "../random/SinglePlayerRandomness.sol";
 import "./Game.sol";
+import "../token/ERC223Receiver.sol";
 
 /**
  * @title AllOrNothingSlotmachine
@@ -9,6 +10,18 @@ import "./Game.sol";
  * @dev A slot machine where the chance of winning depends on the players address and a random number.
  */
 contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver {
+
+    /*
+     * Events.
+     */
+
+    /**
+     * @dev Emitted when the slotmachine is interacted with.
+     * @param _customer     the customer who is interacting.
+     * @param _interaction  the kind of interaction.
+     */
+    event Interaction(address _customer, bytes _interaction);
+
 
     /*
      * Fields.
@@ -78,12 +91,16 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
 
         if(keccak256(_data) == keccak256(DATA_PULL_THE_LEVER)) {
 
-            pullTheLever(_origin);
+            pullTheLever(_origin, _value);
 
         } else if(keccak256(_data) == keccak256(DATA_CLAIM)) {
 
             claim(_origin);
         }
+
+        success = true;
+
+        emit Interaction(_origin, _data);
     }
 
 
@@ -105,12 +122,12 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         setTarget(guess, block.number.add(targetBlockOffset));
 
         //transfer price to the casino
-        assert(gamblingHall.token().transfer(
+        assert(gamblingHall.casino().token().transfer(
                 address(gamblingHall.casino()), //to
                 price)                          //value
         );
 
-        emit CustomerPlays(_customer, name);
+        emit Played(_customer);
     }
 
     /**
@@ -123,7 +140,8 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
      * @dev If the guess was wrong, transfers the price to the casino and returns the deposit.
      * @param _customer The customer, i.e. the gambler.
      */
-    function claim(address _customer) internal isAvailable //TODO make sure its not done in this block {
+    function claim(address _customer) internal isAvailable {
+        //TODO make shure it is not done in this block... this should be the case anyway since offset > 0
 
         //throws already
         bool guessCorrect = guessedRight(possibilities);
@@ -132,17 +150,17 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
 
             //assume casino has enough tokens
             //requests the casino to payout the prize
-            assert(gamblingHall.casino().payOutWin(_customer, prize));
+            assert(gamblingHall.casino().payOutWin(_customer, prize, name));
 
-            emit CustomerWon(_customer, name, prize);
+            emit CustomerWon(_customer, prize);
 
         } else {
 
-            emit CustomerLost(_customer, name);
+            emit CustomerLost(_customer);
         }
 
         //pays back the deposit
-        assert(gamblingHall.token().transfer(
+        assert(gamblingHall.casino().token().transfer(
                 _customer,  //to
                 deposit)    //value
         );
@@ -168,6 +186,9 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
 
         price = _price;
         prize = _prize;
+
+        emit ParameterChanged("price", price);
+        emit ParameterChanged("prize", prize);
     }
 
     /**
@@ -178,6 +199,8 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         require(DEPOSIT_MIN <= _deposit);
 
         deposit = _deposit;
+
+        emit ParameterChanged("deposit", deposit);
     }
 
     /**
@@ -188,6 +211,8 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         require(POSSIBILITIES_MIN <= _possibilities);
 
         possibilities = _possibilities;
+
+        emit ParameterChanged("possibilities", possibilities);
     }
 
     /**
@@ -198,5 +223,7 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         require(_targetBlockOffset <= TARGET_BLOCK_OFFSET_MAX);
 
         targetBlockOffset = _targetBlockOffset;
+
+        emit ParameterChanged("targetBlockOffset", targetBlockOffset);
     }
 }

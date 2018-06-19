@@ -7,7 +7,7 @@ import "../contracts/game/AllOrNothingSlotmachine.sol";
 // Contract you're testing
 contract Thrower {
     function doThrow() public pure {
-        throw;
+        revert();
     }
 
     function doNoThrow() public pure {
@@ -32,38 +32,38 @@ contract ThrowProxy {
         return target.call(data);
     }
 
-    function constructorTest(uint _prize, uint _price, uint _deposit, uint _possibilities, address _tokenAddress, uint8 _targetBlockOffset) public returns (bool) {
-        return this.doCreate(_prize, _price, _deposit, _possibilities, _tokenAddress, _targetBlockOffset);
+    function constructorTest(bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (bool) {
+        return this.doCreate(_name, _prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
     }
 
-    function doCreate(uint _prize, uint _price, uint _deposit, uint _possibilities, address _tokenAddress, uint8 _targetBlockOffset) public returns (bool) {
-        new AllOrNothingSlotmachine(_prize, _price, _deposit, _possibilities, _tokenAddress, _targetBlockOffset);
+    function doCreate(bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (bool) {
+        new AllOrNothingSlotmachine(_name, _prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
         return true;
     }
 
-    function create(uint _prize, uint _price, uint _deposit, uint _possibilities, address _tokenAddress, uint8 _targetBlockOffset) public returns (AllOrNothingSlotmachine) {
-        return new AllOrNothingSlotmachine(_prize, _price, _deposit, _possibilities, _tokenAddress, _targetBlockOffset);
+    function create(bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (AllOrNothingSlotmachine) {
+        return new AllOrNothingSlotmachine(_name, _prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
     }
 }
 
 contract TestAllOrNothingSlotmachine {
 
+    uint constant SLOTMACHINE_PRIZE = 45;
+    uint constant SLOTMACHINE_PRICE = 5;
+    uint constant SLOTMACHINE_DEPOSIT = 5;
+    uint constant SLOTMACHINE_POSSIBILITIES = 10;
+    uint8 constant SLOTMACHINE_TARGET_BLOCK_OFFSET = 5;
+
     function testConstructor_validParameters_shouldSucceed() public {
 
-        uint SLOTMACHINE_PRIZE = 45;
-        uint SLOTMACHINE_PRICE = 5;
-        uint SLOTMACHINE_DEPOSIT = 5;
-        uint SLOTMACHINE_POSSIBILITIES = 10;
-        uint8 SLOTMACHINE_TARGET_BLOCK_OFFSET = 5;
-
-
-        ThrowProxy throwProxy = new ThrowProxy(address(123));
-        AllOrNothingSlotmachine sm = throwProxy.create(
+        ThrowProxy throwProxy = new ThrowProxy(address(0));
+        bool success = throwProxy.constructorTest.gas(200000)("Slotmachine1",
             SLOTMACHINE_PRIZE, SLOTMACHINE_PRICE, SLOTMACHINE_DEPOSIT, SLOTMACHINE_POSSIBILITIES,
-            DeployedAddresses.CasinoToken(), SLOTMACHINE_TARGET_BLOCK_OFFSET
+            DeployedAddresses.SimpleGamblingHall(), SLOTMACHINE_TARGET_BLOCK_OFFSET
         );
 
-        Assert.equal(sm.available(), false, "Slotmachine should be unavailable initially!");
+        Assert.equal(success, true, "Slotmachine should have been created!");
+//        Assert.equal(sm.available(), false, "Slotmachine should be unavailable initially!");
     }
 
 //    function testInitialVotingProhibited() public {

@@ -40,7 +40,7 @@ contract MultiPlayerRandomness {
         //TODO do something with the value...
     }
 
-    function getRandomNumber(uint _max) internal returns(uint){
+    function getRandomNumber(uint _max) internal view returns(uint){
         //TODO require all participants revealed
 
         uint rand = 0;

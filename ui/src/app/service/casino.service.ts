@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import Web3 from "web3";
 import {HttpProvider} from "web3/types";
-import TruffleContract from 'truffle-contract';
+import * as TruffleContract from '../../../node_modules/truffle-contract';
 
 declare let require: any;
 declare let window: any;
@@ -16,12 +16,24 @@ export class CasinoService {
   private casinoContract: TruffleContract;
 
   constructor() {
-    this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
-    let casinoContract = TruffleContract(casinoAbi);
-    casinoContract.setProvider(this.web3Provider);
-    this.casinoContract = this.fix(casinoContract);
 
+    //new version
+    if (typeof window.web3 !== 'undefined') {
+      this.web3Provider = window.web3.currentProvider;
+    } else {
+      this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
+    }
     window.web3 = new Web3(this.web3Provider);
+
+    //old version
+    // this.web3Provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
+
+    const casinoContract = TruffleContract(casinoAbi);
+    casinoContract.setProvider(this.web3Provider);
+    // this.casinoContract = this.fix(casinoContract);
+    this.casinoContract = casinoContract;
+
+    // window.web3 = new Web3(this.web3Provider);
   }
 
   getAccountInfo() {
@@ -40,7 +52,7 @@ export class CasinoService {
     });
   }
 
-  getCasinoAddress(): Promise<string> {
+  getAddress(): Promise<string> {
     return new Promise((resolve, reject) => {
       this.casinoContract.deployed()
         .then(function(instance) {
@@ -54,7 +66,7 @@ export class CasinoService {
       });
   }
 
-  getCasinoName(): Promise<string> {
+  getName(): Promise<string> {
     return new Promise((resolve, reject) => {
       this.casinoContract.deployed().then(function(instance) {
         console.log(instance);
@@ -63,7 +75,7 @@ export class CasinoService {
         return resolve(owner);
       }).catch(function(error){
         console.log(error);
-        return reject("Error in getCasinoOwner service call");
+        return reject("Error in getName service call");
       });
     });
   }
@@ -77,7 +89,7 @@ export class CasinoService {
         return resolve(owner);
       }).catch(function(error){
         console.log(error);
-        return reject("Error in getCasinoOwner service call");
+        return reject("Error in getOwner service call");
       });
     });
   }

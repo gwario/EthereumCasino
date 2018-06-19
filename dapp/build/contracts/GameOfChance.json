@@ -52,14 +52,14 @@
     "absolutePath": "/home/mariogastegger/1_private/study/repository/SC_Ass0.3/dapp/contracts/game/GameOfChance.sol",
     "exportedSymbols": {
       "GameOfChance": [
-        1315
+        1804
       ]
     },
-    "id": 1316,
+    "id": 1805,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1290,
+        "id": 1779,
         "literals": [
           "solidity",
           "^",
@@ -67,7 +67,7 @@
           ".23"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:11"
+        "src": "0:24:7"
       },
       {
         "baseContracts": [],
@@ -75,9 +75,9 @@
         "contractKind": "contract",
         "documentation": "@title GameOfChance\n@author mariogastegger\n@dev Interface which must be implemented by games of chance... e.g. slotmachine, even or odd, ...",
         "fullyImplemented": false,
-        "id": 1315,
+        "id": 1804,
         "linearizedBaseContracts": [
-          1315
+          1804
         ],
         "name": "GameOfChance",
         "nodeType": "ContractDefinition",
@@ -85,21 +85,21 @@
           {
             "anonymous": false,
             "documentation": "@dev Indicates, that the game is over.",
-            "id": 1296,
+            "id": 1785,
             "name": "GameOver",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 1295,
+              "id": 1784,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1292,
+                  "id": 1781,
                   "indexed": false,
                   "name": "player",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1296,
-                  "src": "321:14:11",
+                  "scope": 1785,
+                  "src": "321:14:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -107,10 +107,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1291,
+                    "id": 1780,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "321:7:11",
+                    "src": "321:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -121,12 +121,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1294,
+                  "id": 1783,
                   "indexed": false,
                   "name": "hasWon",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1296,
-                  "src": "337:11:11",
+                  "scope": 1785,
+                  "src": "337:11:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -134,10 +134,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 1293,
+                    "id": 1782,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "337:4:11",
+                    "src": "337:4:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -147,14 +147,14 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "320:29:11"
+              "src": "320:29:7"
             },
-            "src": "306:44:11"
+            "src": "306:44:7"
           },
           {
             "body": null,
             "documentation": "@dev The lower bound for the stake.",
-            "id": 1301,
+            "id": 1790,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -162,23 +162,23 @@
             "name": "minStake",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1297,
+              "id": 1786,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "476:2:11"
+              "src": "476:2:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1300,
+              "id": 1789,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1299,
+                  "id": 1788,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1301,
-                  "src": "497:7:11",
+                  "scope": 1790,
+                  "src": "497:7:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -186,10 +186,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1298,
+                    "id": 1787,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "497:7:11",
+                    "src": "497:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -199,10 +199,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "496:9:11"
+              "src": "496:9:7"
             },
-            "scope": 1315,
-            "src": "459:47:11",
+            "scope": 1804,
+            "src": "459:47:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "internal"
@@ -210,7 +210,7 @@
           {
             "body": null,
             "documentation": "@dev The upper bound for the stake.",
-            "id": 1306,
+            "id": 1795,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -218,23 +218,23 @@
             "name": "maxStake",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1302,
+              "id": 1791,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "587:2:11"
+              "src": "587:2:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1305,
+              "id": 1794,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1304,
+                  "id": 1793,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1306,
-                  "src": "608:7:11",
+                  "scope": 1795,
+                  "src": "608:7:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -242,10 +242,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1303,
+                    "id": 1792,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "608:7:11",
+                    "src": "608:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -255,10 +255,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "607:9:11"
+              "src": "607:9:7"
             },
-            "scope": 1315,
-            "src": "570:47:11",
+            "scope": 1804,
+            "src": "570:47:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "internal"
@@ -266,7 +266,7 @@
           {
             "body": null,
             "documentation": "@dev Bets in this game.",
-            "id": 1311,
+            "id": 1800,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -274,16 +274,16 @@
             "name": "bet",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1309,
+              "id": 1798,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1308,
+                  "id": 1797,
                   "name": "_bet",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1311,
-                  "src": "683:9:11",
+                  "scope": 1800,
+                  "src": "683:9:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -291,10 +291,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1307,
+                    "id": 1796,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "683:4:11",
+                    "src": "683:4:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -304,17 +304,17 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "682:11:11"
+              "src": "682:11:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1310,
+              "id": 1799,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "702:0:11"
+              "src": "702:0:7"
             },
-            "scope": 1315,
-            "src": "670:33:11",
+            "scope": 1804,
+            "src": "670:33:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -322,7 +322,7 @@
           {
             "body": null,
             "documentation": "@dev Claims the prize.",
-            "id": 1314,
+            "id": 1803,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -330,43 +330,43 @@
             "name": "claim",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1312,
+              "id": 1801,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "769:2:11"
+              "src": "769:2:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1313,
+              "id": 1802,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "780:0:11"
+              "src": "780:0:7"
             },
-            "scope": 1315,
-            "src": "755:26:11",
+            "scope": 1804,
+            "src": "755:26:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 1316,
-        "src": "184:599:11"
+        "scope": 1805,
+        "src": "184:599:7"
       }
     ],
-    "src": "0:784:11"
+    "src": "0:784:7"
   },
   "legacyAST": {
     "absolutePath": "/home/mariogastegger/1_private/study/repository/SC_Ass0.3/dapp/contracts/game/GameOfChance.sol",
     "exportedSymbols": {
       "GameOfChance": [
-        1315
+        1804
       ]
     },
-    "id": 1316,
+    "id": 1805,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1290,
+        "id": 1779,
         "literals": [
           "solidity",
           "^",
@@ -374,7 +374,7 @@
           ".23"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:24:11"
+        "src": "0:24:7"
       },
       {
         "baseContracts": [],
@@ -382,9 +382,9 @@
         "contractKind": "contract",
         "documentation": "@title GameOfChance\n@author mariogastegger\n@dev Interface which must be implemented by games of chance... e.g. slotmachine, even or odd, ...",
         "fullyImplemented": false,
-        "id": 1315,
+        "id": 1804,
         "linearizedBaseContracts": [
-          1315
+          1804
         ],
         "name": "GameOfChance",
         "nodeType": "ContractDefinition",
@@ -392,21 +392,21 @@
           {
             "anonymous": false,
             "documentation": "@dev Indicates, that the game is over.",
-            "id": 1296,
+            "id": 1785,
             "name": "GameOver",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 1295,
+              "id": 1784,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1292,
+                  "id": 1781,
                   "indexed": false,
                   "name": "player",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1296,
-                  "src": "321:14:11",
+                  "scope": 1785,
+                  "src": "321:14:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -414,10 +414,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1291,
+                    "id": 1780,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "321:7:11",
+                    "src": "321:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -428,12 +428,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1294,
+                  "id": 1783,
                   "indexed": false,
                   "name": "hasWon",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1296,
-                  "src": "337:11:11",
+                  "scope": 1785,
+                  "src": "337:11:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -441,10 +441,10 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 1293,
+                    "id": 1782,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "337:4:11",
+                    "src": "337:4:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -454,14 +454,14 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "320:29:11"
+              "src": "320:29:7"
             },
-            "src": "306:44:11"
+            "src": "306:44:7"
           },
           {
             "body": null,
             "documentation": "@dev The lower bound for the stake.",
-            "id": 1301,
+            "id": 1790,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -469,23 +469,23 @@
             "name": "minStake",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1297,
+              "id": 1786,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "476:2:11"
+              "src": "476:2:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1300,
+              "id": 1789,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1299,
+                  "id": 1788,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1301,
-                  "src": "497:7:11",
+                  "scope": 1790,
+                  "src": "497:7:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -493,10 +493,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1298,
+                    "id": 1787,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "497:7:11",
+                    "src": "497:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -506,10 +506,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "496:9:11"
+              "src": "496:9:7"
             },
-            "scope": 1315,
-            "src": "459:47:11",
+            "scope": 1804,
+            "src": "459:47:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "internal"
@@ -517,7 +517,7 @@
           {
             "body": null,
             "documentation": "@dev The upper bound for the stake.",
-            "id": 1306,
+            "id": 1795,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -525,23 +525,23 @@
             "name": "maxStake",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1302,
+              "id": 1791,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "587:2:11"
+              "src": "587:2:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1305,
+              "id": 1794,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1304,
+                  "id": 1793,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1306,
-                  "src": "608:7:11",
+                  "scope": 1795,
+                  "src": "608:7:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -549,10 +549,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1303,
+                    "id": 1792,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "608:7:11",
+                    "src": "608:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -562,10 +562,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "607:9:11"
+              "src": "607:9:7"
             },
-            "scope": 1315,
-            "src": "570:47:11",
+            "scope": 1804,
+            "src": "570:47:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "internal"
@@ -573,7 +573,7 @@
           {
             "body": null,
             "documentation": "@dev Bets in this game.",
-            "id": 1311,
+            "id": 1800,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -581,16 +581,16 @@
             "name": "bet",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1309,
+              "id": 1798,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1308,
+                  "id": 1797,
                   "name": "_bet",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1311,
-                  "src": "683:9:11",
+                  "scope": 1800,
+                  "src": "683:9:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -598,10 +598,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1307,
+                    "id": 1796,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "683:4:11",
+                    "src": "683:4:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -611,17 +611,17 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "682:11:11"
+              "src": "682:11:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1310,
+              "id": 1799,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "702:0:11"
+              "src": "702:0:7"
             },
-            "scope": 1315,
-            "src": "670:33:11",
+            "scope": 1804,
+            "src": "670:33:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -629,7 +629,7 @@
           {
             "body": null,
             "documentation": "@dev Claims the prize.",
-            "id": 1314,
+            "id": 1803,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -637,36 +637,36 @@
             "name": "claim",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1312,
+              "id": 1801,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "769:2:11"
+              "src": "769:2:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 1313,
+              "id": 1802,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "780:0:11"
+              "src": "780:0:7"
             },
-            "scope": 1315,
-            "src": "755:26:11",
+            "scope": 1804,
+            "src": "755:26:7",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 1316,
-        "src": "184:599:11"
+        "scope": 1805,
+        "src": "184:599:7"
       }
     ],
-    "src": "0:784:11"
+    "src": "0:784:7"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.23+commit.124ca40d.Emscripten.clang"
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-06-17T12:11:36.284Z"
+  "updatedAt": "2018-06-19T12:08:14.605Z"
 }

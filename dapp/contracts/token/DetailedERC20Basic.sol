@@ -1,7 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "./ERC20.sol";
-
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol";
 
 /**
  * @title DetailedERC20 token
@@ -9,7 +8,7 @@ import "./ERC20.sol";
  * All the operations are done using the smallest and indivisible token unit,
  * just as on Ethereum all the operations are done in wei.
  */
-contract DetailedERC20 is ERC20 {
+contract DetailedERC20Basic is ERC20Basic {
   string public name;
   string public symbol;
   uint8 public decimals;

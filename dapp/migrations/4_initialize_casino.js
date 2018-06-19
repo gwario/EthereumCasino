@@ -1,8 +1,9 @@
 const CONF = require("../conf.json");
 
-const CasinoToken = artifacts.require("./bank/CasinoToken.sol");
+const CasinoToken = artifacts.require("./token/CasinoToken.sol");
 const SlotMachine = artifacts.require("./game/AllOrNothingSlotmachine.sol");
-const Casino = artifacts.require("./Casino.sol");
+const Casino = artifacts.require("./NewVegas.sol");
+const GamblingHall = artifacts.require("./SimpleGamblingHall.sol");
 
 module.exports = function(deployer, network, accounts) {
 
@@ -41,13 +42,14 @@ module.exports = function(deployer, network, accounts) {
     } else {
 
         if (CONF.DEVEL) {
-
-            CasinoToken.deployed()
-                .then(casinoToken => {
-                    casinoToken.produce(CASINO_OWNER, INITIAL_TOKEN_SUPPLY, {from: TOKEN_OWNER});
-                })
-                .catch(error => console.error("4_CasinoToken", error));
-
+            //Some how does not work...  not deployed... script seems to be executed before deployment succeeded
+            //Also some other node error...
+            // CasinoToken.deployed()
+            //     .then(casinoToken => {
+            //         casinoToken.produce(CASINO_OWNER, INITIAL_TOKEN_SUPPLY, {from: TOKEN_OWNER});
+            //     })
+            //     .catch(error => console.error("4_CasinoToken", error));
+            //
             // Casino.deployed()
             //     .then(casino => {
             //         casino.setTokenPrice(INITIAL_TOKEN_PRICE, {from: CASINO_OWNER});

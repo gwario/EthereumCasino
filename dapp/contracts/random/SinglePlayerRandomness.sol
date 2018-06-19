@@ -10,6 +10,33 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 contract SinglePlayerRandomness {
     using SafeMath for uint;
 
+    /*
+     * Events.
+     */
+
+    /**
+     * @dev Emitted when a customer made guess.
+     * @param _customer     the customer.
+     * @param _guess        the guess.
+     * @param _currentBlock the current block (committed).
+     * @param _targetBlock  the target block (revealed).
+     */
+    event GuessMade(address _customer, uint _guess, uint _currentBlock, uint _targetBlock);
+
+    /**
+     * @dev Emitted when a customer guess a random number correctly.
+     * @param _customer         the customer who guessed right.
+     * @param _possibilities    the number of possiblities.
+     */
+    event GuessedRight(address _customer, uint _possibilities);
+
+    /**
+     * @dev Emitted when a new random number was generated.
+     * @param _number           the number.
+     * @param _possibilities    the number of possibilities.
+     */
+    event NewRandomNumber(uint _number, uint _possibilities);
+
 
     /*
      * Fields.
@@ -30,6 +57,7 @@ contract SinglePlayerRandomness {
 
     /**
      * @dev Sets the guess and the target block for the (player) external account.
+     * @dev Uses tx.origin.
      * @param _guess the guess.
      * @param _targetBlock the target block.
      */
@@ -39,6 +67,8 @@ contract SinglePlayerRandomness {
 
         playerTargetBlock[tx.origin] = _targetBlock;
         playerGuess[tx.origin] = _guess;
+
+        emit GuessMade(tx.origin, _guess, block.number, _targetBlock);
     }
 
     /**
@@ -47,22 +77,27 @@ contract SinglePlayerRandomness {
      * @return A random number.
      */
     //TEST:
-    function getRandomNumber(uint _max) internal view returns (uint) {
+    function getRandomNumber(uint _max) internal returns (uint randomNumber) {
         uint targetBlock = playerTargetBlock[tx.origin];
 
         require(block.number >= targetBlock);
 
-        uint randomNumber = uint(blockhash(targetBlock)) % _max;
+        randomNumber = uint(blockhash(targetBlock)) % _max;
 
         delete targetBlock;
 
-        return randomNumber;
+        emit NewRandomNumber(randomNumber, _max);
     }
 
     /**
      * @dev Returns true if the guess was correct, otherwise false.
+     * @dev Uses expects tx.origin to be the player.
      */
-    function guessedRight(uint _possibilities) internal returns (bool) {
-        return uint(playerGuess[tx.origin]) == getRandomNumber(_possibilities);
+    //TEST:
+    function guessedRight(uint _possibilities) internal returns (bool hasGuessedRight) {
+
+        hasGuessedRight = uint(playerGuess[tx.origin]) == getRandomNumber(_possibilities);
+
+        emit GuessedRight(tx.origin, _possibilities);
     }
 }

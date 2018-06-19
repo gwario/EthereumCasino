@@ -7,7 +7,9 @@
     "test": "test"
   },
   "dependencies": {
-    "openzeppelin-solidity": "1.10.0"
+    "bignumber.js": "^7.2.1",
+    "openzeppelin-solidity": "1.10.0",
+    "truffle-test-utils": "^0.1.0"
   },
   "devDependencies": {},
   "scripts": {

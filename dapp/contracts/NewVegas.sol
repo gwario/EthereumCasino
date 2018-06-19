@@ -1,8 +1,9 @@
 pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "./game/GamblingHall.sol";
-import "./bank/CasinoToken.sol";
+import "./GamblingHall.sol";
+import "./token/CasinoToken.sol";
+import "./Casino.sol";
 
 /**
  * @title NewVegas
@@ -19,8 +20,7 @@ contract NewVegas is Casino {
     /*
      * Fields.
      */
-    /** @dev fee which has to be paid for every token/ether exchange. */
-    uint public exchangeFee;
+
 
     /**
      * @param _tokenAddress the address of the initial token.
@@ -30,11 +30,11 @@ contract NewVegas is Casino {
      */
     //TEST:
     constructor(address _tokenAddress, address _gamingHallAddress, uint _tokenPrice, uint _exchangeFee)
-    Casino(_tokenAddress, _gamingHallAddress, _tokenPrice)
-    public {
+    Casino(_tokenAddress, _gamingHallAddress, _tokenPrice, _exchangeFee)
+    public payable {
+        require(token.balanceOf(address(this)).mul(tokenPrice) <= msg.value);//ensure winnings can be cashed out.
 
         name = "New Vegas";
-        exchangeFee = _exchangeFee;
     }
 
     /*
@@ -51,7 +51,7 @@ contract NewVegas is Casino {
      */
     //TEST:
     function buy() external payable {
-        assert(buy(exchangeFee));
+        assert(buyInternal(msg.sender));
     }
 
     /**
@@ -60,20 +60,11 @@ contract NewVegas is Casino {
      */
     //TEST:
     function cashout() external payable {
-        assert(cashout(exchangeFee));
+        assert(cashoutInternal(msg.sender));
     }
 
 
     /*
      * Maintenance functions.
      */
-
-    /**
-     * @dev Sets a token price.
-     * @param _tokenPrice the token price.
-     */
-    //TEST:
-    function setExchangeFee(uint _exchangeFee) external isClosed onlyRole(ROLE_MANAGER) {
-        exchangeFee = _exchangeFee;
-    }
 }

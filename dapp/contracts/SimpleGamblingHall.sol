@@ -7,7 +7,7 @@ import "./GamblingHall.sol";
  * @author mariogastegger
  * @dev An actual gambling hall.
  */
-contract FirstGamblingHall is GamblingHall {
+contract SimpleGamblingHall is GamblingHall {
 
     /*
      * Events.

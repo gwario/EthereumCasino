@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "../Casino.sol";
+import "./Casino.sol";
 
 /**
  * @title GamblingHall
@@ -12,14 +12,35 @@ import "../Casino.sol";
 contract GamblingHall is RBAC {
     using SafeMath for uint;
 
-
     /*
      * Events.
      */
 
+    /**
+     * @dev Emitted when the casino changed.
+     * @param _newCasino    the new casino.
+     */
+    event CasinoChanged(address _newCasino);
+
+    /**
+     * @dev Emitted when a game was added.
+     * @param _newGame  the new game.
+     * @param _gameName the game's name.
+     * @param _gameType the game's type.
+     */
+    event GameAdded(address _newGame, bytes32 _gameName, bytes8 _gameType);
+
+    /**
+     * @dev Emitted when a game was removed.
+     * @param _game  the game.
+     */
+    event GameRemoved(address _game);
+
+
     /*
      * Fields.
      */
+
     string internal constant ROLE_MANAGER = "manager";
 
     /**
@@ -92,6 +113,8 @@ contract GamblingHall is RBAC {
             isPresent: true
         });
         gameNames.push(_gameName);
+
+        emit GameAdded(_gameAddress, _gameName, _gameType);
     }
 
     /**
@@ -102,16 +125,19 @@ contract GamblingHall is RBAC {
     function removeGame(bytes32 _name) external onlyRole(ROLE_MANAGER) {
         require(nameGameInfo[_name].isPresent);
 
-        uint gameToDelete = nameGameInfo[_name].listPointer;
-        bytes32 gameToMove = gameNames[gameNames.length.sub(1)];
+        uint gameToDeleteListPointer = nameGameInfo[_name].listPointer;
+        address gameToDeleteAddress = nameGameInfo[_name].gameAddress;
+        bytes32 gameToMoveName = gameNames[gameNames.length.sub(1)];
 
         //https://ethereum.stackexchange.com/a/13168/39566
         //replace deleted game
-        gameNames[gameToDelete] = gameToMove;
-        nameGameInfo[gameToMove].listPointer = gameToDelete;
+        gameNames[gameToDeleteListPointer] = gameToMoveName;
+        nameGameInfo[gameToMoveName].listPointer = gameToDeleteListPointer;
 
         gameNames.length = gameNames.length.sub(1);
         delete nameGameInfo[_name];
+
+        emit GameRemoved(gameToDeleteAddress);
     }
 
     /**
@@ -146,5 +172,7 @@ contract GamblingHall is RBAC {
         require(_casinoAddress != address(0));
 
         casino = Casino(_casinoAddress);
+
+        emit CasinoChanged(_casinoAddress);
     }
 }
