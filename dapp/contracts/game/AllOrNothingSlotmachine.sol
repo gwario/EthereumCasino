@@ -55,7 +55,7 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
     uint public possibilities;
 
     /** @dev Target block offset to block.number. Lower numbers increase performance. */
-    uint8 internal targetBlockOffset;
+    uint8 public targetBlockOffset;
 
 
     constructor(
@@ -99,6 +99,8 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
             pullTheLever(_origin, _value);
 
         } else if(keccak256(_data) == keccak256(DATA_CLAIM)) {
+
+            require(_value == 0);
 
             claim(_origin);
         }

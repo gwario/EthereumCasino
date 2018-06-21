@@ -1,7 +1,12 @@
 mat-card {
   height: 220px;
+  width: 410px;
 }
 
 mat-card-title > * {
   vertical-align: middle;
+}
+
+mat-card-actions > .mat-raised-button {
+  margin-bottom: 5px;
 }

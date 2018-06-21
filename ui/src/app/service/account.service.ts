@@ -8,6 +8,7 @@ import {environment} from "../../environments/environment";
 import {HttpProvider} from "web3/types";
 import {Utils} from "../utils";
 import {ContractAccount} from "../model/contract-account";
+import {SlotmachineService} from "./slotmachine.service";
 
 declare let window: any;
 
@@ -21,7 +22,8 @@ export class AccountService {
 
   constructor(private casinoService: CasinoService,
               private casinoTokenService: CasinoTokenService,
-              private gamblingHallService: GamblingHallService) {
+              private gamblingHallService: GamblingHallService,
+              private slotmachineService: SlotmachineService) {
 
     //new version
     if (typeof window.web3 !== 'undefined' && environment.production) {
@@ -163,6 +165,28 @@ export class AccountService {
         return reject(reason);
       });
     }));
+
+    contractAccounts.push(new Promise<ContractAccount>((resolve, reject) => {
+      const contractAccount: ContractAccount = new ContractAccount();
+
+      return this.slotmachineService.getAddress().then(address => {
+        return this.slotmachineService.getName().then(name => {
+          return Utils.getBalances(address, window.web3, this.casinoTokenService).then(tokensAndEther => {
+            contractAccount.address = address;
+            contractAccount.name = name;
+            contractAccount.etherBalance = tokensAndEther.etherBalance;
+            contractAccount.tokenBalance = tokensAndEther.tokenBalance;
+            // console.debug("contractAccount", contractAccount);
+            return resolve(contractAccount);
+          }).catch(reason => {
+            return reject(reason);
+          });
+        });
+      }).catch(reason => {
+        return reject(reason);
+      });
+    }));
+
     // console.debug("contractAccounts", contractAccounts);
     return contractAccounts;
   }
@@ -217,9 +241,15 @@ export class AccountService {
                   roles.add(ExternalAccount.ROLE_GAMBLING_HALL_MANAGER);
                 }
 
-                // console.debug("roles", roles);
-                //TODO add games
-                return resolve(roles);
+                return this.slotmachineService.getSuperviserAddress().then(slotmachineSupervisorAddress => {
+                  if(externalAccount.address == slotmachineSupervisorAddress) {
+                    roles.add(ExternalAccount.ROLE_GAME_SUPERVISOR);
+                  }
+
+                  // console.debug("roles", roles);
+                  //TODO add games
+                  return resolve(roles);
+                });
               });
             });
           });
@@ -257,9 +287,14 @@ export class AccountService {
                 if(gamblingHallManagerAddress != '0x0000000000000000000000000000000000000000')
                   addresses.add(gamblingHallManagerAddress);
 
-                // console.debug("addresses", addresses);
-                //TODO add games
-                return resolve(addresses);
+                return this.slotmachineService.getSuperviserAddress().then(slotmachineSupervisorAddress => {
+                  if(slotmachineSupervisorAddress != '0x0000000000000000000000000000000000000000')
+                    addresses.add(slotmachineSupervisorAddress);
+
+                  // console.debug("addresses", addresses);
+                  //TODO add games
+                  return resolve(addresses);
+                });
               });
             });
           });

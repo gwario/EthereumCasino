@@ -12,7 +12,7 @@
     <div class="field">Opened: <span class="value">{{casino.opened}}</span></div>
     <div class="field">Token Price: <span class="value">{{casino.tokenPrice}}</span></div>
     <div class="field">Exchange Fee: <span class="value">{{casino.exchangeFee}}</span></div>
-    <mat-grid-list cols="2" rowHeight="fit">
+    <mat-grid-list cols="3" rowHeight="5:3">
       <mat-grid-tile><app-account [account]="casino.owner"></app-account></mat-grid-tile>
       <mat-grid-tile><app-account [account]="casino.manager"></app-account></mat-grid-tile>
     </mat-grid-list>

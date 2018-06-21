@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import BigNumber from "bignumber.js";
 import Web3 from "web3";
-import {HttpProvider} from "web3/types";
+import {Contract, HttpProvider} from "web3/types";
 import * as TruffleContract from '../../../node_modules/truffle-contract';
 import {environment} from "../../environments/environment";
 
@@ -16,6 +16,7 @@ const casinoTokenAbi = require('../../../../dapp/build/contracts/CasinoToken.jso
 export class CasinoTokenService {
   private web3Provider: HttpProvider;
   private casinoTokenContract: TruffleContract;
+  private otherCasinoTokenContract: Contract;
 
   constructor() {
     const  casinoTokenContract = TruffleContract(casinoTokenAbi);
@@ -32,9 +33,23 @@ export class CasinoTokenService {
     this.casinoTokenContract = casinoTokenContract;
 
     window.web3 = new Web3(this.web3Provider);
+
+    this.otherCasinoTokenContract = new window.web3.eth.Contract(casinoTokenAbi.abi, casinoTokenAbi.networks['5777'].address);
+    console.log(this.otherCasinoTokenContract)
   }
 
-  produce(address: string, tokens: number, from: string): any {
+
+  transfer(to: string, value: BigNumber, data: string, from: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      console.log("to, value.toNumber(), window.web3.utils.fromUtf8(data),{from: from}", to, value.toNumber(), window.web3.utils.fromUtf8(data), {from: from});
+      return this.otherCasinoTokenContract.methods['transfer(address,uint256,bytes)'](to, value.toNumber(), window.web3.utils.fromUtf8(data)).call({from: from}).then(function(result){
+        console.log(result);
+        return resolve(result);
+      });
+    });
+  }
+
+  produce(address: string, tokens: number, from: string): Promise<boolean> {
     return this.casinoTokenContract.deployed().then(function(instance) {
       return instance.produce(address, tokens, {from: from});
     });

@@ -1,0 +1,21 @@
+.game-card {
+  height: 560px;
+  width: 500px;
+}
+
+mat-card-title > * {
+  vertical-align: middle;
+}
+
+.field {
+  text-align: left;
+  min-height: 30px;
+}
+
+.field > * {
+  vertical-align: middle;
+}
+
+.field > mat-icon {
+  margin-right: 5px;
+}

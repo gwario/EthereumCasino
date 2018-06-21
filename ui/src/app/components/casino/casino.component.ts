@@ -7,6 +7,8 @@ import {AccountService} from "../../service/account.service";
 import {ExternalAccount} from "../../model/external-account";
 import {InviteComponent} from "../../dialogs/invite/invite.component";
 import {MatDialog} from "@angular/material";
+import {CasinoToken} from "../../model/casino-token";
+import {GamblingHall} from "../../model/gambling-hall";
 
 declare let window: any;
 
@@ -28,6 +30,8 @@ export class CasinoComponent implements OnInit {
               public dialog: MatDialog) {
 
     this.casino = new Casino();
+    this.casino.token = new CasinoToken();
+    this.casino.gamblingHall = new GamblingHall();
 
     //populate casino object
     casinoServce.getAddress().then(address => {

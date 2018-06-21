@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as TruffleContract from '../../../node_modules/truffle-contract';
-import {ExternalAccount} from "../model/external-account";
 import {HttpProvider} from "web3/types";
 import Web3 from "web3";
 import {environment} from "../../environments/environment";
@@ -40,7 +39,7 @@ export class GamblingHallService {
       this.gamblingHallContract.deployed().then(function(instance) {
         return resolve(instance.address);
       }).catch(function(error) {
-        return reject("Error in getAddress service call");
+        return reject("Error in getAddress service call: "+error);
       });
     });
   }
@@ -52,7 +51,19 @@ export class GamblingHallService {
       }).then(function(owner) {
         return resolve(owner);
       }).catch(function(error){
-        return reject("Error in getName service call");
+        return reject("Error in getName service call: "+error);
+      });
+    });
+  }
+
+  getCasinoAddress(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.gamblingHallContract.deployed().then(function(instance) {
+        return instance.casino.call();
+      }).then(function(casino) {
+        return resolve(casino);
+      }).catch(function(error){
+        return reject("Error in getOwnerAddress service call: "+error);
       });
     });
   }
@@ -64,7 +75,7 @@ export class GamblingHallService {
       }).then(function(owner) {
         return resolve(owner);
       }).catch(function(error){
-        return reject("Error in getOwnerAddress service call");
+        return reject("Error in getOwnerAddress service call: "+error);
       });
     });
   }
@@ -76,20 +87,46 @@ export class GamblingHallService {
       }).then(function(manager) {
         return resolve(manager);
       }).catch(function(error){
-        return reject("Error in getManagerAddress service call");
+        return reject("Error in getManagerAddress service call: "+error);
       });
     });
   }
 
-
-  function getGameAddress(bytes32 _gameName) external view returns (address) {
-    return nameGameInfo[_gameName].gameAddress;
+  getGameNames(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      this.gamblingHallContract.deployed().then(function(instance) {
+        return instance.getGameNames();
+      }).then(function(games) {
+        return resolve(games);
+      }).catch(function(error){
+        return reject("Error in getGameType service call: "+error);
+      });
+    });
   }
 
-  function getGameType(address _gameName) external view returns (address) {
-    return nameGameInfo[_gameName].gameType;
+  getGameAddress(name: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.gamblingHallContract.deployed().then(function(instance) {
+        return instance.getGameAddress(name);
+      }).then(function(address) {
+        return resolve(address);
+      }).catch(function(error){
+        return reject("Error in getGameAddress service call: "+error);
+      });
+    });
   }
 
+  getGameType(name: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.gamblingHallContract.deployed().then(function(instance) {
+        return instance.getGameType(name);
+      }).then(function(type) {
+        return resolve(window.web3.utils.hexToUtf8(type));
+      }).catch(function(error){
+        return reject("Error in getGameType service call: "+error);
+      });
+    });
+  }
 
   private fix(contract: TruffleContract) {
     //dirty hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530

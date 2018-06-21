@@ -160,7 +160,7 @@ contract GamblingHall is RBAC {
      * @return all games.
      */
     //TEST:
-    function getGames() external view returns (bytes32[]) {
+    function getGameNames() external view returns (bytes32[]) {
         return gameNames;
     }
 

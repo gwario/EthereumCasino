@@ -7,6 +7,7 @@
     <app-has-tokens-and-ether [tokensAndEther]="account"></app-has-tokens-and-ether>
   </mat-card-content>
   <mat-card-actions>
+    <button mat-raised-button (click)="openPlaySlotmachineDialog()" *ngIf="slotmachineAvailable">Play Slotmachine</button>
     <button mat-raised-button (click)="openBuyDialog()" *ngIf="casinoOpened">Buy</button>
     <button mat-raised-button (click)="cashout()" *ngIf="casinoOpened">Cashout</button>
     <button mat-raised-button (click)="openProduceDialog()" *ngIf="account.isCasinoTokenOwner()">Produce</button>
@@ -14,5 +15,7 @@
     <button mat-raised-button (click)="openStockupDialog()" *ngIf="account.isCasinoOwner()">Stock up Casino balance</button>
     <button mat-raised-button (click)="closeCasino()" *ngIf="(casinoOpened && (account.isCasinoOwner() || account.isCasinoManager()))">Close Casino</button>
     <button mat-raised-button (click)="openCasino()" *ngIf="(!casinoOpened && (account.isCasinoOwner() || account.isCasinoManager()))">Open Casino</button>
+    <button mat-raised-button (click)="holdSlotmachine()" *ngIf="(slotmachineAvailable && account.isSlotmachineSupervisor())">Hold Slotmachine</button>
+    <button mat-raised-button (click)="releaseSlotmachine()" *ngIf="(!slotmachineAvailable && account.isSlotmachineSupervisor())">Release Slotmachine</button>
   </mat-card-actions>
 </mat-card>

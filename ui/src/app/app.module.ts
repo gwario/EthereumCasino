@@ -19,8 +19,8 @@ import {CasinoTokenService} from "./service/casino-token.service";
 import { CasinoComponent } from './components/casino/casino.component';
 import { AccountComponent } from './components/account/account.component';
 import { CasinoTokenComponent } from './components/casino-token/casino-token.component';
-import { GamingHallComponent } from './components/gaming-hall/gaming-hall.component';
-import { GameComponent } from './components/game/game.component';
+import { GamblingHallComponent } from './components/gambling-hall/gambling-hall.component';
+import { Slotmachine10GameComponent } from './components/game/slotmachine-1-0-game.component';
 import { HasTokensAndEtherComponent } from './components/has-tokens-and-ether/has-tokens-and-ether.component';
 import { ProduceTokensComponent } from './dialogs/produce-tokens/produce-tokens.component';
 import { StockupEtherComponent } from './dialogs/stockup-ether/stockup-ether.component';
@@ -28,6 +28,9 @@ import {AccountService} from "./service/account.service";
 import { AccountsComponent } from './components/accounts/accounts.component';
 import { BuyComponent } from './dialogs/buy/buy.component';
 import { InviteComponent } from './dialogs/invite/invite.component';
+import {SlotmachineService} from "./service/slotmachine.service";
+import {GamblingHallService} from "./service/gambling-hall.service";
+import { PlaySlotmachineGameComponent } from './dialogs/play-slotmachine-game/play-slotmachine-game.component';
 
 @NgModule({
   declarations: [
@@ -35,14 +38,15 @@ import { InviteComponent } from './dialogs/invite/invite.component';
     CasinoComponent,
     AccountComponent,
     CasinoTokenComponent,
-    GamingHallComponent,
-    GameComponent,
+    GamblingHallComponent,
+    Slotmachine10GameComponent,
     HasTokensAndEtherComponent,
     ProduceTokensComponent,
     StockupEtherComponent,
     AccountsComponent,
     BuyComponent,
-    InviteComponent
+    InviteComponent,
+    PlaySlotmachineGameComponent
   ],
   imports: [
     BrowserModule,
@@ -50,8 +54,8 @@ import { InviteComponent } from './dialogs/invite/invite.component';
     MatInputModule, MatFormFieldModule, MatIconModule, MatCardModule, MatButtonModule, MatTabsModule, MatGridListModule,
     MatSelectModule, MatDividerModule, MatDialogModule
   ],
-  providers: [CasinoService, CasinoTokenService, AccountService],
-  entryComponents: [ProduceTokensComponent, StockupEtherComponent, BuyComponent, InviteComponent],
+  providers: [CasinoService, CasinoTokenService, AccountService, SlotmachineService, GamblingHallService],
+  entryComponents: [ProduceTokensComponent, StockupEtherComponent, BuyComponent, InviteComponent, PlaySlotmachineGameComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

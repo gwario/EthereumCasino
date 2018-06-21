@@ -8,16 +8,16 @@
     <div class="field">Manager: <span class="value">{{gamblingHall.manager.address}}</span></div>
     <div class="field"><mat-icon>account_balance</mat-icon>Casino: <span class="value">{{gamblingHall.casino.address}}</span></div>
     <app-has-tokens-and-ether [tokensAndEther]="gamblingHall"></app-has-tokens-and-ether>
-    <mat-grid-list class="managers" cols="2" rowHeight="fit">
+    <mat-grid-list class="managers" cols="3" rowHeight="5:3">
       <mat-grid-tile><app-account [account]="gamblingHall.owner"></app-account></mat-grid-tile>
       <mat-grid-tile><app-account [account]="gamblingHall.manager"></app-account></mat-grid-tile>
     </mat-grid-list>
+    <mat-grid-list class="games" cols="2" rowHeight="1:1">
+      <mat-grid-tile *ngFor="let game of games">
+        <app-slotmachine-1-0-game [game]="game" *ngIf="game.type == 'sm_1.0'"></app-slotmachine-1-0-game>
+      </mat-grid-tile>
+    </mat-grid-list>
   </mat-card-content>
-  <mat-grid-list class="games" cols="1" rowHeight="fit">
-    <mat-grid-tile *ngFor="let game of games">
-      <app-game [game]="game" *ngIf="game.type == 'sm_1.0'"></app-game>
-    </mat-grid-tile>
-  </mat-grid-list>
   <mat-card-actions>
     <button mat-raised-button (click)="openInviteDialog()">Invite Account</button>
   </mat-card-actions>

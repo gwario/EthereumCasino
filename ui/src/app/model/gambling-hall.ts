@@ -6,8 +6,8 @@ import {ExternalAccount} from "./external-account";
 export class GamblingHall extends AddressTokensEther {
 
   name: string;
-  owner: ExternalAccount;
-  manager: ExternalAccount;
+  owner: ExternalAccount = new ExternalAccount();
+  manager: ExternalAccount =  new ExternalAccount();
   casino: Casino;
   nameGameInfo: Map<string, Game>;
 }

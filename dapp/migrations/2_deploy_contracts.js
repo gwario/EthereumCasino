@@ -34,7 +34,7 @@ module.exports = function(deployer, network, accounts) {
     const SLOTMACHINE_PRICE = new BigNumber(5);
     const SLOTMACHINE_DEPOSIT = new BigNumber(5);
     const SLOTMACHINE_POSSIBILITIES = new BigNumber(10);
-    const SLOTMACHINE_TARGET_BLOCK_OFFSET = new BigNumber(5);
+    const SLOTMACHINE_TARGET_BLOCK_OFFSET = new BigNumber(3);
 
     const CASINO_OWNER = accounts[0];
     const TOKEN_OWNER = accounts[1];
@@ -88,7 +88,7 @@ module.exports = function(deployer, network, accounts) {
                         casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
                         gamblingHall.setManager(GAMBLING_HALL_MANAGER, {from:GAMBLING_HALL_OWNER});
                         gamblingHall.setCasino(casino.address, {from: GAMBLING_HALL_MANAGER});
-                        // gamblingHall.addGame("All-Or-Nothing Slotmachine", slotmachine.address, {from: GAMBLING_HALL_MANAGER});
+                        gamblingHall.addGame("All-Or-Nothing Slotmachine", slotmachine.address, {from: GAMBLING_HALL_MANAGER});
 
 
                         casinoMetaData.networks[deployer.network_id] = {};

@@ -9,6 +9,8 @@ import {ProduceTokensComponent} from "../../dialogs/produce-tokens/produce-token
 import {StockupEtherComponent} from "../../dialogs/stockup-ether/stockup-ether.component";
 import BigNumber from "bignumber.js";
 import {BuyComponent} from "../../dialogs/buy/buy.component";
+import {PlaySlotmachineGameComponent} from "../../dialogs/play-slotmachine-game/play-slotmachine-game.component";
+import {SlotmachineService} from "../../service/slotmachine.service";
 
 @Component({
   selector: 'app-account',
@@ -20,6 +22,10 @@ export class AccountComponent implements OnInit {
   @Input() account: ExternalAccount;
 
   casinoOpened: boolean;
+  slotmachineAvailable: boolean;
+
+  slotmachinePlaying: boolean;
+
   tokenSymbol: string;
   externalAccounts: ExternalAccount[];
   contractAccounts: ContractAccount[];
@@ -27,6 +33,7 @@ export class AccountComponent implements OnInit {
   constructor(private casinoTokenService: CasinoTokenService,
               private casinoService: CasinoService,
               private accountService: AccountService,
+              private slotmachineService: SlotmachineService,
               public dialog: MatDialog) {
     this.externalAccounts = [];
     this.contractAccounts = [];
@@ -37,6 +44,10 @@ export class AccountComponent implements OnInit {
 
     this.casinoService.isOpened().then(value => {
       this.casinoOpened = value;
+    }).catch(reason => console.error(reason));
+
+    this.slotmachineService.isAvailable().then(value => {
+      this.slotmachineAvailable = value;
     }).catch(reason => console.error(reason));
 
 
@@ -102,6 +113,35 @@ export class AccountComponent implements OnInit {
     this.casinoService.payout(this.account.address);
   }
 
+  openPlaySlotmachineDialog() {
+    let dialogRef = this.dialog.open(PlaySlotmachineGameComponent, {
+      data: {
+        slotmachinePlaying: this.slotmachinePlaying
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if(result) {
+        console.debug("slotmachine: ", result);
+        if(result.pullTheLever)
+          this.slotmachineService.pullTheLever(this.account.address).then(success => {
+            if(success)
+              this.slotmachinePlaying = true;
+            else
+              console.warn("Slotmachine.pullTheLever failed");
+          });
+        else if(result.claim)
+          this.slotmachineService.claim(this.account.address).then(success => {
+            if(success)
+              this.slotmachinePlaying = false;
+            else
+              console.warn("Slotmachine.claim failed");
+          });
+      } else {
+        console.debug("slotmachine: cancel");
+      }
+    });
+  }
+
   openStockupDialog() {
     let dialogRef = this.dialog.open(StockupEtherComponent);
     dialogRef.afterClosed().subscribe(stockupEther => {
@@ -123,5 +163,15 @@ export class AccountComponent implements OnInit {
   closeCasino() {
     console.debug("close casino");
     this.casinoService.close(this.account.address);
+  }
+
+  holdSlotmachine() {
+    console.debug("hold slotmachine");
+    this.slotmachineService.hold(this.account.address);
+  }
+
+  releaseSlotmachine() {
+    console.debug("release slotmachine");
+    this.slotmachineService.release(this.account.address);
   }
 }

@@ -76,7 +76,7 @@ contract Game is RBAC {
     bytes8 public gameType;
 
     /** @dev the game's name. This is set when adding it to a hall. */
-    bytes32 internal name;
+    bytes32 public name;
 
     //TEST:
     constructor(bytes8 _gameType, address _gamblingHallAddress) internal {

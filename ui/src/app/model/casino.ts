@@ -9,8 +9,8 @@ export class Casino extends AddressTokensEther {
   name: string;
   owner: ExternalAccount = new ExternalAccount();
   manager: ExternalAccount = new ExternalAccount();
-  token: CasinoToken = new CasinoToken();
-  gamblingHall: GamblingHall = new GamblingHall();
+  token: CasinoToken;
+  gamblingHall: GamblingHall;
   opened: boolean;
   tokenPrice: BigNumber;
   exchangeFee: BigNumber;
