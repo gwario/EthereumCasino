@@ -3,6 +3,7 @@ pragma solidity ^0.4.23;
 import "../random/SinglePlayerRandomness.sol";
 import "./Game.sol";
 import "../token/ERC223Receiver.sol";
+import "../ByteUtils.sol";
 
 /**
  * @title AllOrNothingSlotmachine
@@ -10,6 +11,7 @@ import "../token/ERC223Receiver.sol";
  * @dev A slot machine where the chance of winning depends on the players address and a random number.
  */
 contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver {
+    using ByteUtils for bytes32;
 
     /*
      * Events.
@@ -26,6 +28,9 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
     /*
      * Fields.
      */
+
+    /** @dev the tpye and version of this contract. */
+    bytes8 public constant TYPE_VERSION = "sm_1.0";
 
     /** @dev Duration[s]= duration[block] * 15[s/block] = 20 * 15 = 300s = 5min */
     uint8 internal constant TARGET_BLOCK_OFFSET_MAX = 20;
@@ -54,9 +59,9 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
 
 
     constructor(
-        bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities,
+        uint _prize, uint _price, uint _deposit, uint _possibilities,
         address _gamblingHallAddress, uint8 _targetBlockOffset
-    ) Game(_name, _gamblingHallAddress) SinglePlayerRandomness() public {
+    ) Game(TYPE_VERSION, _gamblingHallAddress) SinglePlayerRandomness() public {
         require(PRIZE_MIN <= _prize);
         require(_price < _prize);
         require(PRICE_MIN <= _price);
@@ -124,11 +129,14 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         //transfer price to the casino
         assert(gamblingHall.casino().token().transfer(
                 address(gamblingHall.casino()), //to
-                price)                          //value
+                price,                          //value
+                name.toBytes())                 //the game's name
         );
 
         emit Played(_customer);
     }
+
+
 
     /**
      * @dev String to be used in data of a ERC233 transfer to claim the prize of the slot machine.

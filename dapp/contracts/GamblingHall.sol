@@ -3,6 +3,7 @@ pragma solidity ^0.4.23;
 import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Casino.sol";
+import "./game/Game.sol";
 
 /**
  * @title GamblingHall
@@ -41,10 +42,11 @@ contract GamblingHall is RBAC {
      * Fields.
      */
 
+    string internal constant ROLE_OWNER = "owner";
     string internal constant ROLE_MANAGER = "manager";
 
     /**
-     * @title GameInfo
+     * @title Game
      * @dev Holds information about a game.
      * @dev to extend this, create additional fields and an own map an link them to this map.
      */
@@ -57,6 +59,11 @@ contract GamblingHall is RBAC {
     }
 
 
+    string public name;
+
+    address public owner;
+    address public manager;
+
     Casino public casino;
 
     /** @dev Mapping of game name to game info. For extensions of  */
@@ -66,7 +73,13 @@ contract GamblingHall is RBAC {
 
 
     //TEST:
-    constructor() internal {
+    constructor(string _name) internal {
+
+        owner = msg.sender;
+
+        name = _name;
+
+        addRole(msg.sender, ROLE_OWNER);
         addRole(msg.sender, ROLE_MANAGER);
     }
 
@@ -97,24 +110,27 @@ contract GamblingHall is RBAC {
 
     /**
      * @dev Adds a game.
-     * @param _gameName the name of the game.
-     * @param _gameType the type of the game.
+     * @param _gameName the name of the game. NOTE: name must be unique!
      * @param _gameAddress the address of the game.
      */
     //TEST:
-    function addGame(bytes32 _gameName, bytes8 _gameType, address _gameAddress) external hasCasino onlyRole(ROLE_MANAGER) {
+    function addGame(bytes32 _gameName, address _gameAddress) external hasCasino onlyRole(ROLE_MANAGER) {
         require(!nameGameInfo[_gameName].isPresent);
+
+        Game game = Game(_gameAddress);
+
+        game.setName(_gameName);
 
         nameGameInfo[_gameName] = GameInfo({
             listPointer: gameNames.length,
             gameName: _gameName,
-            gameType: _gameType,
+            gameType: game.gameType(),
             gameAddress: _gameAddress,
             isPresent: true
         });
         gameNames.push(_gameName);
 
-        emit GameAdded(_gameAddress, _gameName, _gameType);
+        emit GameAdded(_gameAddress, _gameName, game.gameType());
     }
 
     /**
@@ -158,10 +174,37 @@ contract GamblingHall is RBAC {
         return nameGameInfo[_gameName].gameAddress;
     }
 
+    /**
+     * @dev unpacks the game's type.
+     * @param _gameName The game's name, i.e. the key of the games mapping.
+     * @return the type of the game.
+     */
+    //TEST:
+    function getGameType(bytes32 _gameName) external view returns (bytes8) {
+        return nameGameInfo[_gameName].gameType;
+    }
+
 
     /*
      * Maintenance functions.
      */
+
+    /**
+     * @dev sets an operating manager.
+     * @param _manager the manager's address.
+     */
+    //TEST:
+    function setManager(address _manager) external onlyRole(ROLE_OWNER) {
+        require(_manager != address(0));
+
+        //remove old
+        removeRole(manager, ROLE_MANAGER);
+
+        manager = _manager;
+
+        //add new
+        addRole(manager, ROLE_MANAGER);
+    }
 
     /**
      * @dev sets the casino.

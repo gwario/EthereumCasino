@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/ownership/rbac/RBAC.sol";
 import "./token/ERC223Receiver.sol";
 import "./GamblingHall.sol";
 import "./token/CasinoToken.sol";
+import "./ByteUtils.sol";
 
 /**
  * @title Casino
@@ -13,6 +14,7 @@ import "./token/CasinoToken.sol";
  */
 contract Casino is RBAC, ERC223Receiver {
     using SafeMath for uint;
+    using ByteUtils for bytes32;
 
     /*
      * Events.
@@ -23,7 +25,7 @@ contract Casino is RBAC, ERC223Receiver {
      * @param _sender   the sender.
      * @param _origin   the customer.
      * @param _value    the value.
-     * @param _data     the data.
+     * @param _data     the data. "production" or a game's address.
      */
     event PaymentReceived(address _sender, address _origin, uint _value, bytes _data);
 
@@ -117,6 +119,9 @@ contract Casino is RBAC, ERC223Receiver {
 
     /** @dev the owner of the casino. */
     address public owner;
+    /** @dev the operating manager of the casino. */
+    address public manager;
+
 
     CasinoToken public token;
     GamblingHall public gamblingHall;
@@ -254,6 +259,9 @@ contract Casino is RBAC, ERC223Receiver {
         //check balance of the casino
         require(customerEtherBalance < address(this).balance);
 
+        //transfer tokens back to casino
+        require(token.transfer(address(this), customerTokenBalance));
+
         //transfer from the casino to the customer and minus fee
         _customer.transfer(customerEtherBalance.sub(exchangeFee));
 
@@ -280,7 +288,18 @@ contract Casino is RBAC, ERC223Receiver {
         emit EtherBalanceChanged(address(this).balance);
     }
 
+    /**
+     * @dev Stock up the casinos ether balance, e.g. to be able to produce more tokens.
+     *///TODO consider handling this in produce in the token and transferring
+    //TEST:
+    function stockup() external payable onlyRole(ROLE_OWNER) {
+        require(msg.value > 0);
+
+        emit EtherBalanceChanged(address(this).balance);
+    }
+
     /** @dev has to be implemented by a casino to receive price... */
+    //TEST:
     function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success) {
 
         if(keccak256(_data) == keccak256("production")) {
@@ -301,14 +320,6 @@ contract Casino is RBAC, ERC223Receiver {
     }
 
     /**
-     * @dev To stock up ether. Send ether to the casino before producing more tokens.
-     */
-    //TEST:
-    function() external payable {
-        emit EtherBalanceChanged(address(this).balance);
-    }
-
-    /**
      * @dev Pays the win to the winner.
      * @param _customer the winner.
      * @param _prize the prize.
@@ -317,23 +328,9 @@ contract Casino is RBAC, ERC223Receiver {
     //TEST:
     function payOutWin(address _customer, uint _prize, bytes32 _gameName) external senderIsGame(_gameName) returns (bool success) {
 
-        success = token.transfer(_customer, _prize, bytes32ToBytes(_gameName));
+        success = token.transfer(_customer, _prize, _gameName.toBytes());
 
         emit CustomerClaimed(_customer, _prize, _gameName);
-    }
-
-    function bytes32ToBytes(bytes32 data) internal pure returns (bytes) {
-        uint i = 0;
-        while (i < 32 && uint(data[i]) != 0) {
-            ++i;
-        }
-        bytes memory result = new bytes(i);
-        i = 0;
-        while (i < 32 && data[i] != 0) {
-            result[i] = data[i];
-            ++i;
-        }
-        return result;
     }
 
     /*
@@ -341,23 +338,20 @@ contract Casino is RBAC, ERC223Receiver {
      */
 
     /**
-     * @dev adds an operating manager.
+     * @dev sets an operating manager.
      * @param _manager the manager's address.
      */
     //TEST:
-    function addManager(address _manager) external onlyRole(ROLE_OWNER) {
+    function setManager(address _manager) external onlyRole(ROLE_OWNER) {
         require(_manager != address(0));
 
-        addRole(_manager, ROLE_MANAGER);
-    }
+        //remove old
+        removeRole(manager, ROLE_MANAGER);
 
-    /**
-     * @dev removes an operating manager.
-     * @param _manager the manager's address.
-     */
-    //TEST:
-    function removeManager(address _manager) external onlyRole(ROLE_OWNER) {
-        removeRole(_manager, ROLE_MANAGER);
+        manager = _manager;
+
+        //add new
+        addRole(manager, ROLE_MANAGER);
     }
 
     /**

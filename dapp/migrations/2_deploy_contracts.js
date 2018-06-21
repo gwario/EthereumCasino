@@ -2,8 +2,14 @@ const CONF = require("../conf.json");
 const BigNumber = require('bignumber.js');
 const fs = require('fs');
 
-const metaDataFile = `${__dirname}/../build/contracts/NewVegas.json`;
-const metaData = require(metaDataFile);
+const casinoMetaDataFile = `${__dirname}/../build/contracts/NewVegas.json`;
+const casinoMetaData = require(casinoMetaDataFile);
+
+const gamblingHallMetaDataFile = `${__dirname}/../build/contracts/SimpleGamblingHall.json`;
+const gamblingHallMetaData = require(gamblingHallMetaDataFile);
+
+const slotmachineMetaDataFile = `${__dirname}/../build/contracts/AllOrNothingSlotmachine.json`;
+const slotmachineMetaData = require(slotmachineMetaDataFile);
 
 
 const CasinoToken = artifacts.require("./token/CasinoToken.sol");
@@ -16,6 +22,7 @@ module.exports = function(deployer, network, accounts) {
 
     const INITIAL_TOKEN_PRICE = new BigNumber(2345678910111213); //about 1€
     const PRODUCTION_AMOUNT = new BigNumber(500);
+    const CASINO_ETHER = INITIAL_TOKEN_PRICE.times(PRODUCTION_AMOUNT);
     const INITIAL_EXCHANGE_FEE = new BigNumber(0);
 
     //2 <= _prize, _price < _prize
@@ -32,7 +39,10 @@ module.exports = function(deployer, network, accounts) {
     const CASINO_OWNER = accounts[0];
     const TOKEN_OWNER = accounts[1];
     const GAMBLING_HALL_OWNER = accounts[2];
-    const SLOTMACHINE_OWNER = accounts[3];
+    const SLOTMACHINE_SUPERVISER = accounts[3];
+
+    const CASINO_MANAGER = accounts[5];
+    const GAMBLING_HALL_MANAGER = accounts[6];
 
     let casinoToken;
     let gamblingHall;
@@ -58,9 +68,9 @@ module.exports = function(deployer, network, accounts) {
                 //10 <= _possibilities
                 //3 <= _targetBlockOffset, _targetBlockOffset <= 20
                 deployer.deploy(SlotMachine,
-                    "Slotmachine1", SLOTMACHINE_PRIZE.toNumber(), SLOTMACHINE_PRICE.toNumber(), SLOTMACHINE_DEPOSIT.toNumber(),
+                    SLOTMACHINE_PRIZE.toNumber(), SLOTMACHINE_PRICE.toNumber(), SLOTMACHINE_DEPOSIT.toNumber(),
                     SLOTMACHINE_POSSIBILITIES.toNumber(), gamblingHall.address, SLOTMACHINE_TARGET_BLOCK_OFFSET.toNumber(),
-                    {from: SLOTMACHINE_OWNER}
+                    {from: SLOTMACHINE_SUPERVISER}
                 )
                 .then(function() { return SlotMachine.deployed(); })
                 .catch(function(error) { console.error("2_Slotmachine", error); })
@@ -73,13 +83,25 @@ module.exports = function(deployer, network, accounts) {
                     .then(function(instance) {
                         console.debug("2_Casino deployed");
                         casino = instance;
-                        casino.send(PRODUCTION_AMOUNT.times(INITIAL_TOKEN_PRICE).toNumber(), {from:CASINO_OWNER});
+                        casino.setManager(CASINO_MANAGER, {from:CASINO_OWNER});
+                        casino.stockup({from:CASINO_OWNER, value: CASINO_ETHER.toNumber()});
                         casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
-                        gamblingHall.setCasino(casino.address, {from: GAMBLING_HALL_OWNER});
+                        gamblingHall.setManager(GAMBLING_HALL_MANAGER, {from:GAMBLING_HALL_OWNER});
+                        gamblingHall.setCasino(casino.address, {from: GAMBLING_HALL_MANAGER});
+                        // gamblingHall.addGame("All-Or-Nothing Slotmachine", slotmachine.address, {from: GAMBLING_HALL_MANAGER});
 
-                        metaData.networks[deployer.network_id] = {};
-                        metaData.networks[deployer.network_id].address = casino.address;
-                        fs.writeFileSync(metaDataFile, JSON.stringify(metaData, null, 4));
+
+                        casinoMetaData.networks[deployer.network_id] = {};
+                        casinoMetaData.networks[deployer.network_id].address = casino.address;
+                        fs.writeFileSync(casinoMetaDataFile, JSON.stringify(casinoMetaData, null, 4));
+
+                        gamblingHallMetaData.networks[deployer.network_id] = {};
+                        gamblingHallMetaData.networks[deployer.network_id].address = gamblingHall.address;
+                        fs.writeFileSync(gamblingHallMetaDataFile, JSON.stringify(gamblingHallMetaData, null, 4));
+
+                        slotmachineMetaData.networks[deployer.network_id] = {};
+                        slotmachineMetaData.networks[deployer.network_id].address = slotmachine.address;
+                        fs.writeFileSync(slotmachineMetaDataFile, JSON.stringify(slotmachineMetaData, null, 4));
                     });
                 });
             });

@@ -31,9 +31,7 @@ contract NewVegas is Casino {
     //TEST:
     constructor(address _tokenAddress, address _gamingHallAddress, uint _tokenPrice, uint _exchangeFee)
     Casino(_tokenAddress, _gamingHallAddress, _tokenPrice, _exchangeFee)
-    public payable {
-        require(token.balanceOf(address(this)).mul(tokenPrice) <= msg.value);//ensure winnings can be cashed out.
-
+    public {
         name = "New Vegas";
     }
 

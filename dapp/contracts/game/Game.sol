@@ -65,24 +65,30 @@ contract Game is RBAC {
     /** @dev The superviser of this game. Collects unclaimed prizes */
     string constant public ROLE_SUPERVISER = "superviser";
 
-    GamblingHall public gamblingHall;
+    address public superviser;
 
-    bytes32 public name;
+    GamblingHall public gamblingHall;
 
     /** @dev whether this game is currently available. */
     bool public available;
 
+    /** @dev the game's type. */
+    bytes8 public gameType;
+
+    /** @dev the game's name. This is set when adding it to a hall. */
+    bytes32 internal name;
 
     //TEST:
-    constructor(bytes32 _name, address _gamblingHallAddress) internal {
+    constructor(bytes8 _gameType, address _gamblingHallAddress) internal {
         require(_gamblingHallAddress != address(0));
 
-        name = _name;
         gamblingHall = GamblingHall(_gamblingHallAddress);
 
         addRole(msg.sender, ROLE_SUPERVISER);
+        superviser = msg.sender;
 
         available = false;
+        gameType = _gameType;
     }
 
 
@@ -102,7 +108,12 @@ contract Game is RBAC {
         require(!gamblingHall.casino().opened() || !available);
         _;
     }
-
+    /** @dev requires the sender to be the gambling hall. */
+    //TEST:
+    modifier isGamblingHall() {
+        require(msg.sender == address(gamblingHall));
+        _;
+    }
 
     /*
      * Business functions.
@@ -144,5 +155,14 @@ contract Game is RBAC {
         gamblingHall = GamblingHall(_gamblingHallAddress);
 
         emit GamblingHallChanged(_gamblingHallAddress);
+    }
+
+    /**
+     * @dev Sets a name of the game. This is set when adding the game to the gambling hall.
+     * @param _name the name of the game.
+     */
+    //TEST:
+    function setName(bytes32 _name) external isNotAvailable isGamblingHall {
+        name = _name;
     }
 }
