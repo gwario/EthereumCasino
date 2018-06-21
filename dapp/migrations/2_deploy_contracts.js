@@ -89,7 +89,8 @@ module.exports = function(deployer, network, accounts) {
                         gamblingHall.setManager(GAMBLING_HALL_MANAGER, {from:GAMBLING_HALL_OWNER});
                         gamblingHall.setCasino(casino.address, {from: GAMBLING_HALL_MANAGER});
                         gamblingHall.addGame("All-Or-Nothing Slotmachine", slotmachine.address, {from: GAMBLING_HALL_MANAGER});
-
+                        casino.open({from: CASINO_MANAGER});
+                        slotmachine.release({from: SLOTMACHINE_SUPERVISER});
 
                         casinoMetaData.networks[deployer.network_id] = {};
                         casinoMetaData.networks[deployer.network_id].address = casino.address;
