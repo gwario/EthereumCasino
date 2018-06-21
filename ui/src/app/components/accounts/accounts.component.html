@@ -1,0 +1,3 @@
+<mat-grid-list cols="3" rowHeight="fit">
+  <mat-grid-tile *ngFor="let externalAccount of externalAccounts"><app-account [account]="externalAccount"></app-account></mat-grid-tile>
+</mat-grid-list>

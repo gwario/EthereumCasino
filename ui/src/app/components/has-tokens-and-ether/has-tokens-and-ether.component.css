@@ -1,0 +1,12 @@
+.field {
+  text-align: left;
+  min-height: 25px;
+}
+
+.field > * {
+  vertical-align: middle;
+}
+
+.field > mat-icon {
+  margin-right: 5px;
+}

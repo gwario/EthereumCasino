@@ -1,0 +1,7 @@
+mat-card {
+  height: 220px;
+}
+
+mat-card-title > * {
+  vertical-align: middle;
+}

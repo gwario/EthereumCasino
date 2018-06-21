@@ -1,0 +1,18 @@
+<mat-card class="account-card" *ngIf="account.address != '0x0000000000000000000000000000000000000000'">
+  <mat-card-header>
+    <mat-card-title><mat-icon>account_box</mat-icon> {{account.address}}</mat-card-title>
+    <mat-card-subtitle><span class="role" *ngFor="let role of account.roles">{{role}}<br/> </span></mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <app-has-tokens-and-ether [tokensAndEther]="account"></app-has-tokens-and-ether>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button (click)="openBuyDialog()" *ngIf="casinoOpened">Buy</button>
+    <button mat-raised-button (click)="cashout()" *ngIf="casinoOpened">Cashout</button>
+    <button mat-raised-button (click)="openProduceDialog()" *ngIf="account.isCasinoTokenOwner()">Produce</button>
+    <button mat-raised-button (click)="payout()" *ngIf="(!casinoOpened && account.isCasinoOwner())">Payout</button>
+    <button mat-raised-button (click)="openStockupDialog()" *ngIf="account.isCasinoOwner()">Stock up Casino balance</button>
+    <button mat-raised-button (click)="closeCasino()" *ngIf="(casinoOpened && (account.isCasinoOwner() || account.isCasinoManager()))">Close Casino</button>
+    <button mat-raised-button (click)="openCasino()" *ngIf="(!casinoOpened && (account.isCasinoOwner() || account.isCasinoManager()))">Open Casino</button>
+  </mat-card-actions>
+</mat-card>

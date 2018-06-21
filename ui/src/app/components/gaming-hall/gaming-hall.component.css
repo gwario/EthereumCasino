@@ -1,0 +1,16 @@
+.field {
+  text-align: left;
+  min-height: 30px;
+}
+
+.field > * {
+  vertical-align: middle;
+}
+
+.field > mat-icon {
+  margin-right: 5px;
+}
+
+mat-grid-list {
+  height: 330px;
+}

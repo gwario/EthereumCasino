@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>Invite an Account to Gamble at the Casino</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput type="text" placeholder="Address" [(value)]="address" />
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="address" cdkFocusInitial>Ok</button>
+</div>
+
+

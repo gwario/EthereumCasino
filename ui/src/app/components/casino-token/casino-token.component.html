@@ -1,0 +1,13 @@
+<mat-card class="casino-token-card">
+  <mat-card-header>
+    <mat-card-title>{{casinoToken.symbol}} {{casinoToken.name}}</mat-card-title>
+    <mat-card-subtitle>({{casinoToken.address}})</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="field">Owner: <span class="value">{{casinoToken.owner.address}}</span></div>
+    <app-has-tokens-and-ether [tokensAndEther]="casinoToken"></app-has-tokens-and-ether>
+    <mat-grid-list cols="3" rowHeight="fit">
+      <mat-grid-tile><app-account [account]="casinoToken.owner"></app-account></mat-grid-tile>
+    </mat-grid-list>
+  </mat-card-content>
+</mat-card>

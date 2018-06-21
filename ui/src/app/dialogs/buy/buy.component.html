@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Buy CasinoTokens for Ether</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Tokens" [(value)]="tokens" (input)="onKey($event.target.value)" />
+  </mat-form-field>
+  <p>Token price: {{tokenPrice.toString()}}</p>
+  <p>Exchange fee: {{exchangeFee.toString()}}</p>
+  <p>Ether: {{ether.toString()}}</p>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="tokens" cdkFocusInitial>Ok</button>
+</div>
+
+

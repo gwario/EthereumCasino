@@ -1,4 +1,37 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
   <h1>Welcome to {{ casinoName }}!</h1>
+
+  <mat-tab-group>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>account_balance</mat-icon>
+        Casino
+      </ng-template>
+      <app-casino></app-casino>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>casino</mat-icon>
+        Gaming Hall
+      </ng-template>
+      <app-gaming-hall></app-gaming-hall>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>attach_money</mat-icon>
+        Casino Token
+      </ng-template>
+      <app-casino-token></app-casino-token>
+    </mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon>contacts</mat-icon>
+        Accounts
+      </ng-template>
+      <app-accounts></app-accounts>
+    </mat-tab>
+  </mat-tab-group>
 </div>
