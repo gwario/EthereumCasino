@@ -3,9 +3,9 @@
   <mat-form-field>
     <input matInput type="number" placeholder="Wei" [(ngModel)]="exchangeFee" />
   </mat-form-field>
-  <p>Token price: {{tokenPrice}} Ξ</p>
-  <p>Current Exchange fee: {{currentExchangeFee}} Ξ</p>
-
+  <p>Token price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice).toFixed(3)}} €)</p>
+  <p>Current Exchange fee: {{this.currentExchangeFeeEther()}} Ξ ({{euroPerWei.times(currentExchangeFee).toFixed(3)}} €)</p>
+  <p>Exchange fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee).toFixed(3)}} €)</p>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onCancelClick()">Cancel</button>

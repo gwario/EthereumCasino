@@ -73,6 +73,10 @@ export class Web3Service {
     return new BigNumber(window.web3.utils.fromWei(balance, unit));
   }
 
+  public toWei(balance: string | number | BigNumber | BN, unit: string): BN {
+    return new BN(window.web3.utils.toWei(balance.toString(), unit).toString());
+  }
+
   public hexToUtf8(hex: string): string {
     return window.web3.utils.hexToUtf8(hex);
   }

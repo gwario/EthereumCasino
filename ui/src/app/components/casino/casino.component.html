@@ -8,8 +8,8 @@
     <div class="field"><mat-icon>videogame_asset</mat-icon>GamblingHall: <span class="value">{{gamblingHallAddress}}</span></div>
     <app-balances [address]="address"></app-balances>
     <div class="field">Opened: <span class="value">{{opened}}</span></div>
-    <div class="field">Token Price: <span class="value">{{tokenPrice.toString()}}</span> Ξ</div>
-    <div class="field">Exchange Fee: <span class="value">{{exchangeFee.toString()}}</span> Ξ</div>
+    <div class="field">Token Price: <span class="value">{{tokenPriceEther()}}</span> Ξ ({{euroPerWei.times(tokenPrice).toFixed(3)}} €)</div>
+    <div class="field">Exchange Fee: <span class="value">{{exchangeFeeEther()}}</span> Ξ ({{euroPerWei.times(exchangeFee).toFixed(3)}} €)</div>
     <mat-grid-list cols="3" rowHeight="5:5">
       <mat-grid-tile><app-account [address]="ownerAddress"></app-account></mat-grid-tile>
       <mat-grid-tile><app-account [address]="managerAddress"></app-account></mat-grid-tile>

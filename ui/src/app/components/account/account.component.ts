@@ -14,6 +14,8 @@ import {ContractService} from "../../service/contract.service";
 import {ChangeExchangeFeeComponent} from "../../dialogs/change-exchange-fee/change-exchange-fee.component";
 import {Web3Service} from "../../service/web3.service";
 import {OnAddressChange} from "../../on-address-change";
+import BN from "bn.js";
+import {ChangeTokenPriceComponent} from "../../dialogs/change-token-price/change-token-price.component";
 
 @Component({
   selector: 'app-account',
@@ -83,6 +85,18 @@ export class AccountComponent implements OnInit, OnAddressChange {
         });
       })
       .on('error', console.error);
+
+    //casino open
+    this.web3Service.casinoContract.events.Opened()
+      .on('data', data => {
+        console.log("event: ", data);
+        this.casinoOpened = true;
+      }).on('error', console.error);
+    this.web3Service.casinoContract.events.Closed()
+      .on('data', data => {
+        console.log("event: ", data);
+        this.casinoOpened = false;
+      }).on('error', console.error);
   }
 
   removeAccount(): void {
@@ -107,7 +121,7 @@ export class AccountComponent implements OnInit, OnAddressChange {
 
         this.casinoService.getExchangeFee().then(exchangeFee => {
           this.casinoService.getTokenPrice().then(tokenPrice => {
-            let valueEther = exchangeFee.plus(tokenPrice.times(tokens));
+            let valueEther = tokens.times(tokenPrice).plus(exchangeFee);
 
             this.casinoService.buy(valueEther, this.address);
           });
@@ -170,7 +184,7 @@ export class AccountComponent implements OnInit, OnAddressChange {
       if(stockupEther) {
         console.debug("stockup: ", stockupEther);
 
-        this.casinoService.stockup(new BigNumber(stockupEther), this.address);
+        this.casinoService.stockup(new BN(stockupEther.toString()), this.address);
       } else {
         console.debug("stockup: cancel");
       }
@@ -197,6 +211,21 @@ export class AccountComponent implements OnInit, OnAddressChange {
     this.slotmachineService.release(this.address);
   }
 
+  openTokenPriceDialog() {
+    console.debug("change token price");
+    let dialogRef = this.dialog.open(ChangeTokenPriceComponent);
+    dialogRef.afterClosed().subscribe(newTokenPrice => {
+      if(newTokenPrice) {
+        console.debug("new token price: ", newTokenPrice);
+
+        this.casinoService.setTokenPrice(newTokenPrice, this.address);
+
+      } else {
+        console.debug("token price: cancel");
+      }
+    });
+  }
+
   openExchangeFeeDialog() {
     console.debug("change exchange fee");
     let dialogRef = this.dialog.open(ChangeExchangeFeeComponent);
@@ -204,10 +233,10 @@ export class AccountComponent implements OnInit, OnAddressChange {
       if(newExchangeFee) {
         console.debug("new exchange fee: ", newExchangeFee);
 
-        this.casinoService.setExchangeFee(new BigNumber(newExchangeFee), this.address);
+        this.casinoService.setExchangeFee(newExchangeFee, this.address);
 
       } else {
-        console.debug("stockup: cancel");
+        console.debug("exchange fee: cancel");
       }
     });
   }
@@ -263,14 +292,14 @@ export class AccountComponent implements OnInit, OnAddressChange {
   }
 
   buyEnabled() {
-    return this.casinoOpened && this.etherBalance.lt(0);
+    return this.casinoOpened && this.etherBalance.gt(0);
   }
   buyDisabledTooltip() {
     return "Casino needs to be opened and account needs ether!";
   }
 
   cashoutEnabled() {
-    return this.casinoOpened && this.tokenBalance.lt(0);
+    return this.casinoOpened && this.tokenBalance.gt(0);
   }
   cashoutDisabledTooltip() {
     return "Casino needs to be opened and accounts needs ether for exchange fee!";
@@ -288,6 +317,13 @@ export class AccountComponent implements OnInit, OnAddressChange {
   }
   closeCasinoDisabledTooltip() {
     return "Casino needs to be opened and account must be owner or manager!";
+  }
+
+  tokenPriceEnabled() {
+    return !this.casinoOpened && this.isCasinoManager();
+  }
+  tokenPriceDisabledTooltip() {
+    return "Casino must be closed and account needs to be manager!";
   }
 
   exchangeFeeEnabled() {

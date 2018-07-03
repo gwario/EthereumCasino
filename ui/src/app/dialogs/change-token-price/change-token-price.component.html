@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Change Token Price</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Wei" [(ngModel)]="tokenPrice" />
+  </mat-form-field>
+  <p>Current Token price: {{currentTokenPriceEther()}} Ξ ({{euroPerWei.times(currentTokenPrice).toFixed(3)}} €)</p>
+  <p>Exchange fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee).toFixed(3)}} €)</p>
+  <p>Token price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice).toFixed(3)}} €)</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="tokenPrice" cdkFocusInitial>Ok</button>
+</div>
+
+

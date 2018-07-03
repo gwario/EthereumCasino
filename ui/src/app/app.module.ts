@@ -1,5 +1,7 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -35,6 +37,8 @@ import {PlaySlotmachineGameComponent} from './dialogs/play-slotmachine-game/play
 import {FormsModule} from '@angular/forms';
 import {ContractService} from "./service/contract.service";
 import {ChangeExchangeFeeComponent} from './dialogs/change-exchange-fee/change-exchange-fee.component';
+import { ManageGamesComponent } from './dialogs/manage-games/manage-games.component';
+import { ChangeTokenPriceComponent } from './dialogs/change-token-price/change-token-price.component';
 
 @NgModule({
   declarations: [
@@ -51,11 +55,14 @@ import {ChangeExchangeFeeComponent} from './dialogs/change-exchange-fee/change-e
     BuyComponent,
     InviteComponent,
     PlaySlotmachineGameComponent,
-    ChangeExchangeFeeComponent
+    ChangeExchangeFeeComponent,
+    ManageGamesComponent,
+    ChangeTokenPriceComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     MatInputModule, MatFormFieldModule, MatIconModule, MatCardModule, MatButtonModule, MatTabsModule,
     MatGridListModule, MatSelectModule, MatDividerModule, MatDialogModule, MatSnackBarModule, FormsModule,
     MatTooltipModule
@@ -65,7 +72,7 @@ import {ChangeExchangeFeeComponent} from './dialogs/change-exchange-fee/change-e
   ],
   entryComponents: [
     ProduceTokensComponent, StockupEtherComponent, BuyComponent, InviteComponent, PlaySlotmachineGameComponent,
-    ChangeExchangeFeeComponent
+    ChangeExchangeFeeComponent, ManageGamesComponent, ChangeTokenPriceComponent
   ],
   bootstrap: [AppComponent]
 })

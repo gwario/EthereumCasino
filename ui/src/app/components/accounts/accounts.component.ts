@@ -14,7 +14,6 @@ export class AccountsComponent implements OnInit {
     //TODO maybe init and the slice in callback
     this.externalAccountAddresses = new Set();
     this.accountService.getExternalAccounts().subscribe(value => {
-      console.log("this.externalAccountAddresses", this.externalAccountAddresses);
       this.externalAccountAddresses = value;
     });
   }

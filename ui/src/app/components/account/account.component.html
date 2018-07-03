@@ -32,6 +32,9 @@
       <button mat-raised-button (click)="openCasino()" [disabled]="!openCasinoEnabled()">Open Casino</button>
     </span>
 
+    <span matTooltip="{{tokenPriceDisabledTooltip()}}" [matTooltipDisabled]="tokenPriceEnabled()">
+      <button mat-raised-button (click)="openTokenPriceDialog()" [disabled]="!tokenPriceEnabled()">Change Token Price</button>
+    </span>
     <span matTooltip="{{exchangeFeeDisabledTooltip()}}" [matTooltipDisabled]="exchangeFeeEnabled()">
       <button mat-raised-button (click)="openExchangeFeeDialog()" [disabled]="!exchangeFeeEnabled()">Change Exchange Fee</button>
     </span>

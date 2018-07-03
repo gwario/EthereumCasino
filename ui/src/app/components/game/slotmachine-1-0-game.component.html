@@ -4,9 +4,9 @@
     <mat-card-subtitle>({{address}})</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <div class="field">Prize [{{symbol}}]: <span class="value">{{prize}}</span></div>
-    <div class="field">Price [{{symbol}}]: <span class="value">{{price}}</span></div>
-    <div class="field">Deposit [{{symbol}}]: <span class="value">{{deposit}}</span></div>
+    <div class="field">Prize: <span class="value">{{prize}}</span> {{symbol}}</div>
+    <div class="field">Price: <span class="value">{{price}}</span> {{symbol}}</div>
+    <div class="field">Deposit: <span class="value">{{deposit}}</span> {{symbol}}</div>
     <div class="field">Chance: <span class="value">1 in {{possibilities}}</span></div>
     <div class="field">Available: <span class="value">{{available}}</span></div>
     <app-balances [address]="address"></app-balances>

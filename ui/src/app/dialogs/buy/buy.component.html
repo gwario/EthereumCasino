@@ -1,11 +1,11 @@
 <h1 mat-dialog-title>Buy CasinoTokens for Ether</h1>
 <div mat-dialog-content>
   <mat-form-field>
-    <input matInput type="number" placeholder="Tokens" [(ngModel)]="tokens" (input)="onChange()" />
+    <input matInput type="number" placeholder="Tokens" [(ngModel)]="tokens" />
   </mat-form-field>
-  <p>Token price [Ξ]: {{tokenPrice.toString()}}</p>
-  <p>Exchange fee [Ξ]: {{exchangeFee.toString()}}</p>
-  <p>Ether: {{wei.toString()}}</p>
+  <p>Token Price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice.toString()).toFixed(3)}} €)</p>
+  <p>Exchange Fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee.toString()).toFixed(3)}} €)</p>
+  <p>Tokens: {{euroPerWei.times(tokenPrice.muln(tokens).add(exchangeFee).toString()).toFixed(3)}} €</p>
 
 </div>
 <div mat-dialog-actions>

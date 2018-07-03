@@ -3,6 +3,7 @@ import {SlotmachineService} from "../../service/slotmachine.service";
 import {CasinoTokenService} from "../../service/casino-token.service";
 import {GamblingHallService} from "../../service/gambling-hall.service";
 import {OnNameChange} from "../../on-name-change";
+import {Web3Service} from "../../service/web3.service";
 
 @Component({
   selector: 'app-slotmachine-1-0-game',
@@ -27,7 +28,8 @@ export class Slotmachine10GameComponent implements OnInit, OnNameChange {
 
   canClaim: boolean;
 
-  constructor(private slotmachineService: SlotmachineService,
+  constructor(private web3Service: Web3Service,
+              private slotmachineService: SlotmachineService,
               private casinoTokenService: CasinoTokenService,
               private gamblingHallService: GamblingHallService) {
 
@@ -43,7 +45,6 @@ export class Slotmachine10GameComponent implements OnInit, OnNameChange {
       this.deposit = value.toString();
     });
     this.slotmachineService.getPossibilities().then(value => {
-      console.log("bignum: ", value)
       this.possibilities = value.toString();
     });
     this.slotmachineService.getSuperviserAddress().then(supervisorAddress => {
@@ -62,7 +63,7 @@ export class Slotmachine10GameComponent implements OnInit, OnNameChange {
       console.debug("Got valid name: %s! Initializing component...", name);
     }
 
-    this.gamblingHallService.getGameType(this.name).then(type => this.type = type);
+    this.gamblingHallService.getGameType(this.name).then(type => this.type = this.web3Service.hexToUtf8(type));
   }
 
   @Input()
