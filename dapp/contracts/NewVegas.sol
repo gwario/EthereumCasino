@@ -26,7 +26,7 @@ contract NewVegas is Casino {
      * @param _tokenAddress the address of the initial token.
      * @param _gamingHallAddress the address of the initial gaming hall.
      * @param _tokenPrice the initial token price.
-     * @param _exchangeFee the initial fee for exchanging ether/tokens.
+     * @param _exchangeFee the initial fee for exchanging wei/tokens.
      */
     //TEST:
     constructor(address _tokenAddress, address _gamingHallAddress, uint _tokenPrice, uint _exchangeFee)
@@ -53,7 +53,7 @@ contract NewVegas is Casino {
     }
 
     /**
-     * @dev Returns ether for the customer tokens.
+     * @dev Returns wei for the customer tokens.
      * @dev requires a fee.
      */
     //TEST:

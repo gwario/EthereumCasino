@@ -1,24 +1,19 @@
 <mat-card class="gambling-hall-card">
   <mat-card-header>
-    <mat-card-title>{{gamblingHall.name}}</mat-card-title>
-    <mat-card-subtitle>({{gamblingHall.address}})</mat-card-subtitle>
+    <mat-card-title>{{name}}</mat-card-title>
+    <mat-card-subtitle>({{address}})</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <div class="field">Owner: <span class="value">{{gamblingHall.owner.address}}</span></div>
-    <div class="field">Manager: <span class="value">{{gamblingHall.manager.address}}</span></div>
-    <div class="field"><mat-icon>account_balance</mat-icon>Casino: <span class="value">{{gamblingHall.casino.address}}</span></div>
-    <app-has-tokens-and-ether [tokensAndEther]="gamblingHall"></app-has-tokens-and-ether>
-    <mat-grid-list class="managers" cols="3" rowHeight="5:3">
-      <mat-grid-tile><app-account [account]="gamblingHall.owner"></app-account></mat-grid-tile>
-      <mat-grid-tile><app-account [account]="gamblingHall.manager"></app-account></mat-grid-tile>
+    <div class="field"><mat-icon>account_balance</mat-icon>Casino: <span class="value">{{casinoAddress}}</span></div>
+    <app-balances [address]="address"></app-balances>
+    <mat-grid-list class="managers" cols="3" rowHeight="5:5">
+      <mat-grid-tile><app-account [address]="ownerAddress"></app-account></mat-grid-tile>
+      <mat-grid-tile><app-account [address]="managerAddress"></app-account></mat-grid-tile>
     </mat-grid-list>
     <mat-grid-list class="games" cols="2" rowHeight="1:1">
       <mat-grid-tile *ngFor="let game of games">
-        <app-slotmachine-1-0-game [game]="game" *ngIf="game.type == 'sm_1.0'"></app-slotmachine-1-0-game>
+        <app-slotmachine-1-0-game [name]="game.name" *ngIf="game.type == 'sm_1.0'"></app-slotmachine-1-0-game>
       </mat-grid-tile>
     </mat-grid-list>
   </mat-card-content>
-  <mat-card-actions>
-    <button mat-raised-button (click)="openInviteDialog()">Invite Account</button>
-  </mat-card-actions>
 </mat-card>

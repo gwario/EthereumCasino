@@ -1,6 +1,22 @@
 .game-card {
   height: 560px;
   width: 500px;
+
+}
+.game-card::after {
+  content: "";
+  background-image: url("../../../assets/slot-machine-159972_1280.png");
+  background-size: 70%;
+  background-repeat: no-repeat;
+  background-position: top;
+  background-position-y: 25px;
+  opacity: 0.15;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: 0;/* could be removed in chrome */
 }
 
 mat-card-title > * {

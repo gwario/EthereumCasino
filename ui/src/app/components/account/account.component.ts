@@ -3,7 +3,6 @@ import {ExternalAccount} from "../../model/external-account";
 import {CasinoTokenService} from "../../service/casino-token.service";
 import {CasinoService} from "../../service/casino.service";
 import {AccountService} from "../../service/account.service";
-import {ContractAccount} from "../../model/contract-account";
 import {MatDialog} from "@angular/material";
 import {ProduceTokensComponent} from "../../dialogs/produce-tokens/produce-tokens.component";
 import {StockupEtherComponent} from "../../dialogs/stockup-ether/stockup-ether.component";
@@ -11,64 +10,92 @@ import BigNumber from "bignumber.js";
 import {BuyComponent} from "../../dialogs/buy/buy.component";
 import {PlaySlotmachineGameComponent} from "../../dialogs/play-slotmachine-game/play-slotmachine-game.component";
 import {SlotmachineService} from "../../service/slotmachine.service";
+import {ContractService} from "../../service/contract.service";
+import {ChangeExchangeFeeComponent} from "../../dialogs/change-exchange-fee/change-exchange-fee.component";
+import {Web3Service} from "../../service/web3.service";
+import {OnAddressChange} from "../../on-address-change";
 
 @Component({
   selector: 'app-account',
   templateUrl: './account.component.html',
   styleUrls: ['./account.component.css']
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, OnAddressChange {
 
-  @Input() account: ExternalAccount;
+  private _address: string;
+
+  etherBalance: BigNumber = new BigNumber(0);
+  tokenBalance: BigNumber = new BigNumber(0);
+  roles: string[];
 
   casinoOpened: boolean;
-  slotmachineAvailable: boolean;
 
+  slotmachineAvailable: boolean;
   slotmachinePlaying: boolean;
 
-  tokenSymbol: string;
-  externalAccounts: ExternalAccount[];
-  contractAccounts: ContractAccount[];
-
-  constructor(private casinoTokenService: CasinoTokenService,
+  constructor(private accountService: AccountService,
+              private contractService: ContractService,
+              private casinoTokenService: CasinoTokenService,
               private casinoService: CasinoService,
-              private accountService: AccountService,
               private slotmachineService: SlotmachineService,
+              private web3Service: Web3Service,
               public dialog: MatDialog) {
-    this.externalAccounts = [];
-    this.contractAccounts = [];
 
-    this.casinoTokenService.getSymbol().then(value => {
-      this.tokenSymbol = value;
-    }).catch(reason => console.error(reason));
+    this.etherBalance = new BigNumber(0);
+    this.tokenBalance = new BigNumber(0);
+    this.roles = [];
 
     this.casinoService.isOpened().then(value => {
       this.casinoOpened = value;
     }).catch(reason => console.error(reason));
-
     this.slotmachineService.isAvailable().then(value => {
       this.slotmachineAvailable = value;
     }).catch(reason => console.error(reason));
-
-
-    this.accountService.getExternalAccounts().then(externalAccounts => {
-      externalAccounts.forEach(valuePromise => {
-        valuePromise.then(value => this.externalAccounts.push(value));
-      });
-    });
-
-    this.accountService.getContractAccounts().forEach(valuePromise => {
-      valuePromise.then(value => this.contractAccounts.push(value));
-    });
   }
 
   ngOnInit() {
   }
 
+  onAddressChange(address: string) {
+    if(this.address == null) {
+      console.warn("Address undefined! Component not yet ready for initialization.");
+      return;
+    } else {
+      console.debug("Got valid address: %s! Initializing component...", address);
+    }
+
+    this.casinoTokenService.getTokenBalance(this.address).then(value => this.tokenBalance = value);
+    this.web3Service.getBalance(this.address).then(value => {
+      this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether'));
+    });
+
+    this.accountService.getRoles(this.address).then(value => this.roles = Array.from(value));
+
+    //TODO listen for all events that can change this components content!
+
+    this.web3Service.casinoTokenContract.events.ProductionFinished({
+      filter: {_owner: this.address}
+    })
+      .on('data', data => {
+        console.log("address: "+this.address, event); // same results as the optional callback above
+        this.casinoTokenService.getTokenBalance(this.address).then(value => {
+          // this.tokenBalance = value.toString();
+        });
+      })
+      .on('error', console.error);
+  }
+
+  removeAccount(): void {
+    console.log("removeAccount");
+    this.accountService.remove(this.address);
+  }
+
   cashout() {
     console.debug("cashout");
     this.casinoService.getExchangeFee().then(exchangeFee => {
-      this.casinoService.cashout(exchangeFee, this.account.address);
+      this.casinoService.cashout(exchangeFee, this.address).then(value => {
+        console.log("cashout receipt", value)
+      });
     });
   }
 
@@ -80,9 +107,9 @@ export class AccountComponent implements OnInit {
 
         this.casinoService.getExchangeFee().then(exchangeFee => {
           this.casinoService.getTokenPrice().then(tokenPrice => {
-            let valueEther = new BigNumber(exchangeFee).plus(tokenPrice.times(tokens));
+            let valueEther = exchangeFee.plus(tokenPrice.times(tokens));
 
-            this.casinoService.buy(valueEther, this.account.address);
+            this.casinoService.buy(valueEther, this.address);
           });
         });
       } else {
@@ -92,16 +119,11 @@ export class AccountComponent implements OnInit {
   }
 
   openProduceDialog() {
-    let dialogRef = this.dialog.open(ProduceTokensComponent, {
-      data: {
-        contractAccounts: this.contractAccounts,
-        externalAccounts: this.externalAccounts
-      }
-    });
+    let dialogRef = this.dialog.open(ProduceTokensComponent);
     dialogRef.afterClosed().subscribe(result => {
       if(result) {
         console.debug("produce:", result);
-        this.casinoTokenService.produce(result.address, result.tokens, this.account.address);
+        this.casinoTokenService.produce(result.address, result.tokens, this.address);
       } else {
         console.debug("produce: cancel");
       }
@@ -110,7 +132,7 @@ export class AccountComponent implements OnInit {
 
   payout() {
     console.debug("payout");
-    this.casinoService.payout(this.account.address);
+    this.casinoService.payout(this.address);
   }
 
   openPlaySlotmachineDialog() {
@@ -123,14 +145,14 @@ export class AccountComponent implements OnInit {
       if(result) {
         console.debug("slotmachine: ", result);
         if(result.pullTheLever)
-          this.slotmachineService.pullTheLever(this.account.address).then(success => {
+          this.slotmachineService.pullTheLever(this.address).then(success => {
             if(success)
               this.slotmachinePlaying = true;
             else
               console.warn("Slotmachine.pullTheLever failed");
           });
         else if(result.claim)
-          this.slotmachineService.claim(this.account.address).then(success => {
+          this.slotmachineService.claim(this.address).then(success => {
             if(success)
               this.slotmachinePlaying = false;
             else
@@ -148,7 +170,7 @@ export class AccountComponent implements OnInit {
       if(stockupEther) {
         console.debug("stockup: ", stockupEther);
 
-        this.casinoService.stockup(new BigNumber(stockupEther), this.account.address);
+        this.casinoService.stockup(new BigNumber(stockupEther), this.address);
       } else {
         console.debug("stockup: cancel");
       }
@@ -157,21 +179,147 @@ export class AccountComponent implements OnInit {
 
   openCasino() {
     console.debug("open casino");
-    this.casinoService.open(this.account.address);
+    this.casinoService.open(this.address);
   }
 
   closeCasino() {
     console.debug("close casino");
-    this.casinoService.close(this.account.address);
+    this.casinoService.close(this.address);
   }
 
   holdSlotmachine() {
     console.debug("hold slotmachine");
-    this.slotmachineService.hold(this.account.address);
+    this.slotmachineService.hold(this.address);
   }
 
   releaseSlotmachine() {
     console.debug("release slotmachine");
-    this.slotmachineService.release(this.account.address);
+    this.slotmachineService.release(this.address);
   }
+
+  openExchangeFeeDialog() {
+    console.debug("change exchange fee");
+    let dialogRef = this.dialog.open(ChangeExchangeFeeComponent);
+    dialogRef.afterClosed().subscribe(newExchangeFee => {
+      if(newExchangeFee) {
+        console.debug("new exchange fee: ", newExchangeFee);
+
+        this.casinoService.setExchangeFee(new BigNumber(newExchangeFee), this.address);
+
+      } else {
+        console.debug("stockup: cancel");
+      }
+    });
+  }
+
+  hasNoRoles(): boolean {
+    return this.roles.length == 0;
+  }
+
+  isCasinoTokenOwner(): boolean {
+    return this.roles.some(value => value == ExternalAccount.ROLE_CASINO_TOKEN_OWNER);
+  }
+
+  isCasinoOwner(): boolean {
+    return this.roles.some(value => value == ExternalAccount.ROLE_CASINO_OWNER)
+  }
+
+  isCasinoManager(): boolean {
+    return this.roles.some(value => value == ExternalAccount.ROLE_CASINO_MANAGER)
+  }
+
+  isGamblingHallOwner(): boolean {
+    return this.roles.some(value => value == ExternalAccount.ROLE_GAMBLING_HALL_OWNER)
+  }
+
+  isGamblingHallManager(): boolean {
+    return this.roles.some(value => value == ExternalAccount.ROLE_GAMBLING_HALL_MANAGER)
+  }
+
+  isSlotmachineSupervisor(): boolean {
+    return this.roles.some(value => value == ExternalAccount.ROLE_GAME_SUPERVISOR)
+  }
+
+
+  produceEnabled(): boolean {
+    return this.isCasinoTokenOwner();
+  }
+  producedDisabledTooltip(): string {
+    return "CasinoToken owner only!";
+  }
+
+  payoutEnabled() {
+    return !this.casinoOpened && this.isCasinoOwner();
+  }
+  payoutDisabledTooltip() {
+    return "Casino casino needs to be closed and account must be owner!";
+  }
+
+  stockupEnabled() {
+    return this.isCasinoOwner();
+  }
+  stockupDisabledTooltip() {
+    return "Account needs to be casino owner!";
+  }
+
+  buyEnabled() {
+    return this.casinoOpened && this.etherBalance.lt(0);
+  }
+  buyDisabledTooltip() {
+    return "Casino needs to be opened and account needs ether!";
+  }
+
+  cashoutEnabled() {
+    return this.casinoOpened && this.tokenBalance.lt(0);
+  }
+  cashoutDisabledTooltip() {
+    return "Casino needs to be opened and accounts needs ether for exchange fee!";
+  }
+
+  openCasinoEnabled() {
+    return !this.casinoOpened && (this.isCasinoOwner() || this.isCasinoManager());
+  }
+  openCasinoDisabledTooltip() {
+    return "Casino needs to be closed and account must be owner or manager!";
+  }
+
+  closeCasinoEnabled() {
+    return this.casinoOpened && (this.isCasinoOwner() || this.isCasinoManager());
+  }
+  closeCasinoDisabledTooltip() {
+    return "Casino needs to be opened and account must be owner or manager!";
+  }
+
+  exchangeFeeEnabled() {
+    return !this.casinoOpened && this.isCasinoManager();
+  }
+  exchangeFeeDisabledTooltip() {
+    return "Casino must be closed and account needs to be manager!";
+  }
+
+  holdSlottmachineEnabled() {
+    return this.slotmachineAvailable && this.isSlotmachineSupervisor();
+  }
+  holdSlottmachineDisabledTooltip() {
+    return "Slotmachine must be available and account needs to be supervisor!";
+  }
+
+  releaseSlottmachineEnabled() {
+    return !this.slotmachineAvailable && this.isSlotmachineSupervisor();
+  }
+  releaseSlottmachineDisabledTooltip() {
+    return "Slotmachine must be on hold and account needs to be supervisor!";
+  }
+
+  playSlottmachineEnabled() {
+    return this.slotmachineAvailable;
+  }
+  playSlottmachineDisabledTooltip() {
+    return "The slotmachine must be available!";
+  }
+
+
+  @Input()
+  set address(address: string) { this._address = address; this.onAddressChange(this._address); }
+  get address(): string { return this._address; }
 }

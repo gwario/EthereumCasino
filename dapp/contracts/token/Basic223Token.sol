@@ -24,7 +24,7 @@ contract Basic223Token is ERC223Basic, BasicToken {
     * @dev transfer token for a specified address
     * @param _to The address to transfer to.
     * @param _value The amount to be transferred
-    * @param _data is arbitrary data sent with the token transferFrom. Simulates ether tx.data
+    * @param _data is arbitrary data sent with the token transferFrom. Simulates wei tx.data
     * @return bool successful or not
     */
     function transfer(address _to, uint _value, bytes _data) public returns (bool success) {

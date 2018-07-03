@@ -21,7 +21,7 @@ contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20Basic("
      * @param _owner    the owner of the produced tokens.
      * @param _amount   the produced amount.
      */
-    event ProductionFinished(address _owner, uint256 _amount);
+    event ProductionFinished(address indexed _owner, uint256 _amount);
 
     /*
      * Fields.

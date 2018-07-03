@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Change Token Exchange Fee</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput type="number" placeholder="Wei" [(ngModel)]="exchangeFee" />
+  </mat-form-field>
+  <p>Token price: {{tokenPrice}} Ξ</p>
+  <p>Current Exchange fee: {{currentExchangeFee}} Ξ</p>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="exchangeFee" cdkFocusInitial>Ok</button>
+</div>
+
+

@@ -1,13 +1,15 @@
 <div style="text-align:center">
   <h1>Welcome to {{ casinoName }}!</h1>
 
+  <button mat-raised-button (click)="openInviteDialog()">Invite Account</button>
+
   <mat-tab-group>
     <mat-tab>
       <ng-template mat-tab-label>
         <mat-icon>account_balance</mat-icon>
         Casino
       </ng-template>
-      <app-casino></app-casino>
+      <app-casino [address]="casinoAddress"></app-casino>
     </mat-tab>
 
     <mat-tab>
@@ -15,7 +17,7 @@
         <mat-icon>casino</mat-icon>
         Gambling Hall
       </ng-template>
-      <app-gambling-hall></app-gambling-hall>
+      <app-gambling-hall [address]="gamblingHallAddress"></app-gambling-hall>
     </mat-tab>
 
     <mat-tab>
@@ -23,7 +25,7 @@
         <mat-icon>attach_money</mat-icon>
         Casino Token
       </ng-template>
-      <app-casino-token></app-casino-token>
+      <app-casino-token [address]="casinoTokenAddress"></app-casino-token>
     </mat-tab>
 
     <mat-tab>
@@ -34,4 +36,5 @@
       <app-accounts></app-accounts>
     </mat-tab>
   </mat-tab-group>
+
 </div>

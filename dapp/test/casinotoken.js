@@ -41,7 +41,7 @@ contract('CasinoToken', function (accounts) {
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
     });
-    it("TokenOwner produces to casino not backed by ether => should revert", async () => {
+    it("TokenOwner produces to casino not backed by wei => should revert", async () => {
 
         try {
             await casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
@@ -51,7 +51,7 @@ contract('CasinoToken', function (accounts) {
         }
     });
 
-    it("TokenOwner produces to casino backed by ether => should succeed", async () => {
+    it("TokenOwner produces to casino backed by wei => should succeed", async () => {
 
         let result = await casino.send(PRODUCTION_AMOUNT.times(INITIAL_TOKEN_PRICE).toNumber(), {from: TOKEN_OWNER});
         assert.web3Event(result, {

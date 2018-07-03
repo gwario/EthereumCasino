@@ -30,21 +30,21 @@ contract Casino is RBAC, ERC223Receiver {
     event PaymentReceived(address _sender, address _origin, uint _value, bytes _data);
 
     /**
-     * @dev Emitted when the owner transfers ether from the casino.
+     * @dev Emitted when the owner transfers wei from the casino.
      * @param _owner    the owner.
      * @param _value    the value.
      */
     event OwnerPaidOut(address _owner, uint _value);
 
     /**
-     * @dev Emitted when a customer transfers ether from the casino, i.e. he sells tokens.
+     * @dev Emitted when a customer transfers wei from the casino, i.e. he sells tokens.
      * @param _customer the customer.
      * @param _value    the value.
      */
     event CustomerPaidOut(address _customer, uint _value);
 
     /**
-     * @dev Emitted when a customer transfers ether to the casino, i.e. he buys tokens.
+     * @dev Emitted when a customer transfers wei to the casino, i.e. he buys tokens.
      * @param _customer the customer.
      * @param _tokens   the number of tokens.
      */
@@ -69,7 +69,7 @@ contract Casino is RBAC, ERC223Receiver {
     event Closed();
 
     /**
-     * @dev Emitted when the casino's ether balance changed.
+     * @dev Emitted when the casino's wei balance changed.
      * @param _newBalance   the new balance.
      */
     event EtherBalanceChanged(uint _newBalance);
@@ -102,7 +102,7 @@ contract Casino is RBAC, ERC223Receiver {
      * @dev Emitted when the casino's token price changed.
      * @param _newTokenPrice    the new token price.
      */
-    event TokenPriceChangedChanged(uint _newTokenPrice);
+    event TokenPriceChanged(uint _newTokenPrice);
 
 
     /*
@@ -131,14 +131,14 @@ contract Casino is RBAC, ERC223Receiver {
 
 
     uint public tokenPrice;
-    /** @dev fee which has to be paid for every token/ether exchange. */
+    /** @dev fee which has to be paid for every token/wei exchange. */
     uint public exchangeFee;
 
     /**
      * @param _tokenAddress the address of the initial token.
      * @param _gamingHallAddress the address of the initial gaming hall.
      * @param _tokenPrice the initial token price.
-     * @param _exchangeFee the initial fee for exchanging ether/tokens.
+     * @param _exchangeFee the initial fee for exchanging wei/tokens.
      */
     //TEST:
     constructor(address _tokenAddress, address _gamingHallAddress, uint _tokenPrice, uint _exchangeFee) internal {
@@ -246,7 +246,7 @@ contract Casino is RBAC, ERC223Receiver {
     }
 
     /**
-     * @dev Returns ether minus the fee, for the customer tokens
+     * @dev Returns wei minus the fee, for the customer tokens
      * @param _customer the buyer of the tokens.
      */
     //TEST:
@@ -289,7 +289,7 @@ contract Casino is RBAC, ERC223Receiver {
     }
 
     /**
-     * @dev Stock up the casinos ether balance, e.g. to be able to produce more tokens.
+     * @dev Stock up the casinos wei balance, e.g. to be able to produce more tokens.
      *///TODO consider handling this in produce in the token and transferring
     //TEST:
     function stockup() external payable onlyRole(ROLE_OWNER) {
@@ -378,7 +378,7 @@ contract Casino is RBAC, ERC223Receiver {
 
         tokenPrice = _tokenPrice;
 
-        emit TokenPriceChangedChanged(tokenPrice);
+        emit TokenPriceChanged(tokenPrice);
     }
 
     /**

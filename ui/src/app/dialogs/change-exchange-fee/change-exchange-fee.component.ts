@@ -1,48 +1,40 @@
 import {Component, Inject, OnInit} from '@angular/core';
+import BigNumber from "bignumber.js";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 import {CasinoService} from "../../service/casino.service";
-import BigNumber from "bignumber.js";
 import {Web3Service} from "../../service/web3.service";
 
 @Component({
-  selector: 'app-buy',
-  templateUrl: './buy.component.html',
-  styleUrls: ['./buy.component.css']
+  selector: 'app-change-exchange-fee',
+  templateUrl: './change-exchange-fee.component.html',
+  styleUrls: ['./change-exchange-fee.component.css']
 })
-export class BuyComponent implements OnInit {
+export class ChangeExchangeFeeComponent implements OnInit {
 
-  tokens: BigNumber;
+  currentExchangeFee: BigNumber;
   exchangeFee: BigNumber;
   tokenPrice: BigNumber;
-  wei: BigNumber;
 
-  constructor(public dialogRef: MatDialogRef<BuyComponent>,
+  constructor(public dialogRef: MatDialogRef<ChangeExchangeFeeComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
               private casinoService: CasinoService,
               private web3Service: Web3Service) {
 
-    this.tokens = new BigNumber(50);
-    this.exchangeFee = new BigNumber(0);
+
+    this.currentExchangeFee = new BigNumber(0);
+    this.exchangeFee = this.web3Service.fromWei(new BigNumber(14037000000000000), 'ether'); // about 5 €
     this.tokenPrice = new BigNumber(0);
-    this.wei = this.exchangeFee.plus(this.tokenPrice.times(this.tokens));
 
     this.casinoService.getExchangeFee().then(value => {
-      this.exchangeFee = new BigNumber(value);
-      this.wei = this.exchangeFee.plus(this.tokenPrice.times(this.tokens));
+      this.currentExchangeFee = this.web3Service.fromWei(new BigNumber(value), 'ether');
     });
 
     this.casinoService.getTokenPrice().then(value => {
       this.tokenPrice = new BigNumber(value);
-      this.wei = this.exchangeFee.plus(this.tokenPrice.times(this.tokens));
     });
   }
 
-
   ngOnInit() {
-  }
-
-  onChange() {
-    this.wei = this.exchangeFee.plus(this.tokenPrice.times(this.tokens));
   }
 
   onCancelClick(): void {

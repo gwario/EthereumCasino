@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {ExternalAccount} from "../../model/external-account";
+import {Component, OnInit} from '@angular/core';
 import {AccountService} from "../../service/account.service";
 
 @Component({
@@ -9,20 +8,17 @@ import {AccountService} from "../../service/account.service";
 })
 export class AccountsComponent implements OnInit {
 
-  externalAccounts: ExternalAccount[];
+  externalAccountAddresses: Set<string>;
 
   constructor(private accountService: AccountService) {
-
-    this.externalAccounts = [];
-
-    this.accountService.getExternalAccounts().then(externalAccounts => {
-      externalAccounts.forEach(valuePromise => {
-        valuePromise.then(value => this.externalAccounts.push(value));
-      });
+    //TODO maybe init and the slice in callback
+    this.externalAccountAddresses = new Set();
+    this.accountService.getExternalAccounts().subscribe(value => {
+      console.log("this.externalAccountAddresses", this.externalAccountAddresses);
+      this.externalAccountAddresses = value;
     });
   }
 
   ngOnInit() {
   }
-
 }

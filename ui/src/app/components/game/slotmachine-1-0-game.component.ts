@@ -1,76 +1,71 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Game} from "../../model/game";
-import {AllOrNothingSlotmachine} from "../../model/all-or-nothing-slotmachine";
 import {SlotmachineService} from "../../service/slotmachine.service";
 import {CasinoTokenService} from "../../service/casino-token.service";
-import {AccountService} from "../../service/account.service";
+import {GamblingHallService} from "../../service/gambling-hall.service";
+import {OnNameChange} from "../../on-name-change";
 
 @Component({
   selector: 'app-slotmachine-1-0-game',
   templateUrl: './slotmachine-1-0-game.component.html',
   styleUrls: ['./slotmachine-1-0-game.component.css']
 })
-export class Slotmachine10GameComponent implements OnInit {
+export class Slotmachine10GameComponent implements OnInit, OnNameChange {
 
-  @Input() game: Game;
+  private _name: string;
 
-  slotmachine: AllOrNothingSlotmachine;
+  address: string;
+  type: string;
+  superviserAddress: string;
+  gamblingHallAddress: string;
+  available: boolean;
 
-  isAvailable: boolean;
+  symbol: string;
+  prize: string;
+  price: string;
+  deposit: string;
+  possibilities: string;
+
   canClaim: boolean;
 
   constructor(private slotmachineService: SlotmachineService,
               private casinoTokenService: CasinoTokenService,
-              private accountService: AccountService) {
+              private gamblingHallService: GamblingHallService) {
+
+    this.address = this.slotmachineService.getAddress();
+    this.casinoTokenService.getSymbol().then(value => this.symbol = value);
+    this.gamblingHallAddress = this.gamblingHallService.getAddress();
+    this.slotmachineService.isAvailable().then(value => this.available = value);
+    this.slotmachineService.getPrice().then(value => this.price = value.toString());
+    this.slotmachineService.getPrize().then(value => {
+      this.prize = value.toString();
+    });
+    this.slotmachineService.getDeposit().then(value => {
+      this.deposit = value.toString();
+    });
+    this.slotmachineService.getPossibilities().then(value => {
+      console.log("bignum: ", value)
+      this.possibilities = value.toString();
+    });
+    this.slotmachineService.getSuperviserAddress().then(supervisorAddress => {
+      this.superviserAddress = supervisorAddress;
+    });
   }
 
   ngOnInit() {
-    this.slotmachine = new AllOrNothingSlotmachine();
-    this.slotmachine.gamblingHall = this.game.gamblingHall;
-    this.slotmachine.type = this.game.type;
-
-    this.slotmachineService.getName().then(value => {
-      this.slotmachine.name = value;
-    });
-
-    this.accountService.getContractAccount(this.game.address).then(account => {
-      this.slotmachine.address = account.address;
-      this.slotmachine.tokenBalance = account.tokenBalance;
-      this.slotmachine.etherBalance = account.etherBalance;
-    }).catch(reason => console.error("accountService.getContractAccount(this.slotmachine.address/"+this.game.address+")", reason));
-
-    this.slotmachineService.isAvailable().then(value => {
-      this.slotmachine.available = value;
-    });
-    this.slotmachineService.getPrice().then(value => {
-      this.slotmachine.price = value;
-    });
-    this.slotmachineService.getPrize().then(value => {
-      this.slotmachine.prize = value;
-    });
-    this.slotmachineService.getDeposit().then(value => {
-      this.slotmachine.deposit = value;
-    });
-    this.slotmachineService.getPossibilities().then(value => {
-      this.slotmachine.possibilities = value;
-    });
-    this.slotmachineService.getSuperviserAddress().then(supervisorAddress => {
-      console.log("supervisorAddress", supervisorAddress);
-      this.accountService.getExternalAccount(supervisorAddress).then(externalAccount => {
-        console.log("supervisorAccount", externalAccount);
-        this.slotmachine.superviser.address = externalAccount.address;
-        this.slotmachine.superviser.etherBalance = externalAccount.etherBalance;
-        this.slotmachine.superviser.tokenBalance = externalAccount.tokenBalance;
-        this.slotmachine.superviser.roles = externalAccount.roles;
-      }).catch(reason => console.error("accountService.getExternalAccount(this.slotmachine.superviser.address/"+this.slotmachine.superviser.address+")", reason));
-    });
   }
 
-  claim() {
-    console.log("claim: TODO");
+  onNameChange(name: string) {
+    if(this.name == null) {
+      console.warn("Name undefined! Component not yet ready for initialization.");
+      return;
+    } else {
+      console.debug("Got valid name: %s! Initializing component...", name);
+    }
+
+    this.gamblingHallService.getGameType(this.name).then(type => this.type = type);
   }
 
-  pullTheLever() {
-    console.log("pull the lever: TODO");
-  }
+  @Input()
+  set name(name: string) { this._name = name; this.onNameChange(this._name); }
+  get name(): string { return this._name; }
 }

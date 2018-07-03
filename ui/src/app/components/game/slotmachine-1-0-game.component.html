@@ -1,22 +1,17 @@
 <mat-card class="game-card">
   <mat-card-header>
-    <mat-card-title>{{slotmachine.name}} <span class="type">({{slotmachine.type}})</span></mat-card-title>
-    <mat-card-subtitle>({{slotmachine.address}})</mat-card-subtitle>
+    <mat-card-title>{{name}} <span class="type">({{type}})</span></mat-card-title>
+    <mat-card-subtitle>({{address}})</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <div class="field">Superviser: <span class="value">{{slotmachine.superviser.address}}</span></div>
-    <div class="field">Prize: <span class="value">{{slotmachine.prize}}</span></div>
-    <div class="field">Price: <span class="value">{{slotmachine.price}}</span></div>
-    <div class="field">Deposit: <span class="value">{{slotmachine.deposit}}</span></div>
-    <div class="field">Chance: <span class="value">1 in {{slotmachine.possibilities}}</span></div>
-    <div class="field">Available: <span class="value">{{slotmachine.available}}</span></div>
-    <app-has-tokens-and-ether [tokensAndEther]="slotmachine"></app-has-tokens-and-ether>
-    <mat-grid-list class="managers" cols="1" rowHeight="5:3">
-      <mat-grid-tile><app-account [account]="slotmachine.superviser"></app-account></mat-grid-tile>
+    <div class="field">Prize [{{symbol}}]: <span class="value">{{prize}}</span></div>
+    <div class="field">Price [{{symbol}}]: <span class="value">{{price}}</span></div>
+    <div class="field">Deposit [{{symbol}}]: <span class="value">{{deposit}}</span></div>
+    <div class="field">Chance: <span class="value">1 in {{possibilities}}</span></div>
+    <div class="field">Available: <span class="value">{{available}}</span></div>
+    <app-balances [address]="address"></app-balances>
+    <mat-grid-list class="managers" cols="1" rowHeight="5:5">
+      <mat-grid-tile><app-account [address]="superviserAddress"></app-account></mat-grid-tile>
     </mat-grid-list>
   </mat-card-content>
-  <mat-card-actions>
-    <button mat-raised-button (click)="pullTheLever()" *ngIf="isAvailable">Pull the Lever</button>
-    <button mat-raised-button (click)="claim()" *ngIf="(isAvailable && canClaim)">Claim Prize</button>
-  </mat-card-actions>
 </mat-card>

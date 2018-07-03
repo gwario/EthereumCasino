@@ -1,21 +1,50 @@
-<mat-card class="account-card" *ngIf="account.address != '0x0000000000000000000000000000000000000000'">
+<mat-card class="account-card" *ngIf="address != '0x0000000000000000000000000000000000000000'">
   <mat-card-header>
-    <mat-card-title><mat-icon>account_box</mat-icon> {{account.address}}</mat-card-title>
-    <mat-card-subtitle><span class="role" *ngFor="let role of account.roles">{{role}}<br/> </span></mat-card-subtitle>
+    <mat-card-title><mat-icon>account_box</mat-icon> {{address}}</mat-card-title>
+    <mat-card-subtitle><span class="role" *ngFor="let role of roles">{{role}}<br/> </span></mat-card-subtitle>
+    <mat-icon *ngIf="roles.size == 0" (click)="removeAccount()">cancel</mat-icon>
   </mat-card-header>
   <mat-card-content>
-    <app-has-tokens-and-ether [tokensAndEther]="account"></app-has-tokens-and-ether>
+    <app-balances [address]="address"></app-balances>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-raised-button (click)="openPlaySlotmachineDialog()" *ngIf="slotmachineAvailable">Play Slotmachine</button>
-    <button mat-raised-button (click)="openBuyDialog()" *ngIf="casinoOpened">Buy</button>
-    <button mat-raised-button (click)="cashout()" *ngIf="casinoOpened">Cashout</button>
-    <button mat-raised-button (click)="openProduceDialog()" *ngIf="account.isCasinoTokenOwner()">Produce</button>
-    <button mat-raised-button (click)="payout()" *ngIf="(!casinoOpened && account.isCasinoOwner())">Payout</button>
-    <button mat-raised-button (click)="openStockupDialog()" *ngIf="account.isCasinoOwner()">Stock up Casino balance</button>
-    <button mat-raised-button (click)="closeCasino()" *ngIf="(casinoOpened && (account.isCasinoOwner() || account.isCasinoManager()))">Close Casino</button>
-    <button mat-raised-button (click)="openCasino()" *ngIf="(!casinoOpened && (account.isCasinoOwner() || account.isCasinoManager()))">Open Casino</button>
-    <button mat-raised-button (click)="holdSlotmachine()" *ngIf="(slotmachineAvailable && account.isSlotmachineSupervisor())">Hold Slotmachine</button>
-    <button mat-raised-button (click)="releaseSlotmachine()" *ngIf="(!slotmachineAvailable && account.isSlotmachineSupervisor())">Release Slotmachine</button>
+    <span matTooltip="{{payoutDisabledTooltip()}}" [matTooltipDisabled]="payoutEnabled()">
+      <button mat-raised-button (click)="payout()" [disabled]="!payoutEnabled()">Payout</button>
+    </span>
+    <span matTooltip="{{stockupDisabledTooltip()}}" [matTooltipDisabled]="stockupEnabled()">
+      <button mat-raised-button (click)="openStockupDialog()" [disabled]="!stockupEnabled()">Stock up Casino balance</button>
+    </span>
+    <span matTooltip="{{producedDisabledTooltip()}}" [matTooltipDisabled]="produceEnabled()">
+      <button mat-raised-button (click)="openProduceDialog()" [disabled]="!produceEnabled()">Produce</button>
+    </span>
+
+    <span matTooltip="{{buyDisabledTooltip()}}" [matTooltipDisabled]="buyEnabled()">
+      <button mat-raised-button (click)="openBuyDialog()" [disabled]="!buyEnabled()">Buy</button>
+    </span>
+    <span matTooltip="{{cashoutDisabledTooltip()}}" [matTooltipDisabled]="cashoutEnabled()">
+      <button mat-raised-button (click)="cashout()" [disabled]="!cashoutEnabled()">Cashout</button>
+    </span>
+
+    <span matTooltip="{{closeCasinoDisabledTooltip()}}" [matTooltipDisabled]="closeCasinoEnabled()">
+      <button mat-raised-button (click)="closeCasino()" [disabled]="!closeCasinoEnabled()">Close Casino</button>
+    </span>
+    <span matTooltip="{{openCasinoDisabledTooltip()}}" [matTooltipDisabled]="openCasinoEnabled()">
+      <button mat-raised-button (click)="openCasino()" [disabled]="!openCasinoEnabled()">Open Casino</button>
+    </span>
+
+    <span matTooltip="{{exchangeFeeDisabledTooltip()}}" [matTooltipDisabled]="exchangeFeeEnabled()">
+      <button mat-raised-button (click)="openExchangeFeeDialog()" [disabled]="!exchangeFeeEnabled()">Change Exchange Fee</button>
+    </span>
+
+    <span matTooltip="{{holdSlottmachineDisabledTooltip()}}" [matTooltipDisabled]="holdSlottmachineEnabled()">
+      <button mat-raised-button (click)="holdSlotmachine()" [disabled]="!holdSlottmachineEnabled()">Hold Slotmachine</button>
+    </span>
+    <span matTooltip="{{releaseSlottmachineDisabledTooltip()}}" [matTooltipDisabled]="releaseSlottmachineEnabled()">
+      <button mat-raised-button (click)="releaseSlotmachine()" [disabled]="!releaseSlottmachineEnabled()">Release Slotmachine</button>
+    </span>
+
+    <span matTooltip="{{playSlottmachineDisabledTooltip()}}" [matTooltipDisabled]="playSlottmachineEnabled()">
+      <button mat-raised-button (click)="openPlaySlotmachineDialog()" [disabled]="!playSlottmachineEnabled()">Play Slotmachine</button>
+    </span>
   </mat-card-actions>
 </mat-card>

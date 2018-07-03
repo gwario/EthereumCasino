@@ -126,7 +126,7 @@ contract Game is RBAC {
     function release() external isNotAvailable onlyRole(ROLE_SUPERVISER) {
         available = true;
 
-        emit Hold();
+        emit Released();
     }
 
     /**
@@ -136,7 +136,7 @@ contract Game is RBAC {
     function hold() external isAvailable onlyRole(ROLE_SUPERVISER) {
         available = false;
 
-        emit Released();
+        emit Hold();
     }
 
 

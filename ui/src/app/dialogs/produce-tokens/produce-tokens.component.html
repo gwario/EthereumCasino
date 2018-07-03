@@ -1,17 +1,17 @@
 <h1 mat-dialog-title>Produce CasinoTokens and transfer them to an address</h1>
 <div mat-dialog-content>
   <mat-form-field>
-    <mat-select placeholder="Address" [(value)]="produceAccountAddress">
-      <mat-option *ngFor="let contractAccount of data.contractAccounts" [value]="contractAccount.address">
+    <mat-select placeholder="Address" [(ngModel)]="produceAccountAddress">
+      <mat-option *ngFor="let contractAccount of contractAccounts" [value]="contractAccount.address">
         {{ contractAccount.address.substring(0,6) }}... ({{contractAccount.name}})
       </mat-option>
-      <mat-option *ngFor="let externalAccount of data.externalAccounts" [value]="externalAccount.address">
-        {{ externalAccount.address.substring(0,6) }}... ({{ setToList(externalAccount.roles) }})
+      <mat-option *ngFor="let address of externalAccounts" [value]="address">
+        {{ address.substring(0,6) }}... ({{ setToList(accountRoles.get(address)) }})
       </mat-option>
     </mat-select>
   </mat-form-field>
   <mat-form-field>
-    <input matInput type="number" placeholder="Tokens" [(value)]="produceTokens">
+    <input matInput type="number" placeholder="Tokens" [(ngModel)]="produceTokens">
   </mat-form-field>
 </div>
 <div mat-dialog-actions>

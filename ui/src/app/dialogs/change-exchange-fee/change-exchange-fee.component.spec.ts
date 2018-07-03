@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HasTokensAndEtherComponent } from './has-tokens-and-ether.component';
+import { ChangeExchangeFeeComponent } from './change-exchange-fee.component';
 
-describe('HasTokensAndEtherComponent', () => {
-  let component: HasTokensAndEtherComponent;
-  let fixture: ComponentFixture<HasTokensAndEtherComponent>;
+describe('ChangeExchangeFeeComponent', () => {
+  let component: ChangeExchangeFeeComponent;
+  let fixture: ComponentFixture<ChangeExchangeFeeComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ HasTokensAndEtherComponent ]
+      declarations: [ ChangeExchangeFeeComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(HasTokensAndEtherComponent);
+    fixture = TestBed.createComponent(ChangeExchangeFeeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

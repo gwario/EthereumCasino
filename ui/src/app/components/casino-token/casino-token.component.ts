@@ -1,49 +1,48 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {CasinoTokenService} from "../../service/casino-token.service";
-import {CasinoToken} from "../../model/casino-token";
-import {AccountService} from "../../service/account.service";
-import {CasinoService} from "../../service/casino.service";
-
-declare let window: any;
+import {OnAddressChange} from "../../on-address-change";
 
 @Component({
   selector: 'app-casino-token',
   templateUrl: './casino-token.component.html',
   styleUrls: ['./casino-token.component.css']
 })
-export class CasinoTokenComponent implements OnInit {
+export class CasinoTokenComponent implements OnInit, OnAddressChange {
 
-  casinoToken: CasinoToken;
+  private _address: string;
 
-  constructor(private casinoTokenService: CasinoTokenService,
-              private casinoService: CasinoService,
-              private accountService: AccountService) {
-    this.casinoToken = new CasinoToken();
+  name: string;
+  symbol: string;
+  decimals: number;
+  ownerAddress: string;
+  totalSupply: string;
 
-    casinoTokenService.getAddress().then(address => {
-      accountService.getContractAccount(address).then(account => {
-        this.casinoToken.address = account.address;
-        this.casinoToken.tokenBalance = account.tokenBalance;
-        this.casinoToken.etherBalance = account.etherBalance;
-      }).catch(reason => console.error("accountService.getContractAccount(this.casinoToken.address/"+this.casinoToken.address+")", reason));
-    });
-    casinoTokenService.getName().then(value => {
-      this.casinoToken.name = value;
-    });
-    casinoTokenService.getSymbol().then(value => {
-      this.casinoToken.symbol = value;
-    });
-    casinoTokenService.getDecimals().then(value => {
-      this.casinoToken.decimals = value;
-    });
-    casinoTokenService.getOwnerAddress().then(address => {
-      accountService.getExternalAccount(address).then(externalAccount => {
-        this.casinoToken.owner = externalAccount;
-      }).catch(reason => console.error("accountService.getExternalAccount(this.casinoToken.owner.address/"+this.casinoToken.owner.address+")", reason));
-    });
+  constructor(private casinoTokenService: CasinoTokenService) {
+
+    this.casinoTokenService.getName().then(value => {
+      this.name = value;
+    }).catch(reason => console.error(reason));
+    this.casinoTokenService.getSymbol().then(value => {
+      this.symbol = value;
+    }).catch(reason => console.error(reason));
+    this.casinoTokenService.getDecimals().then(value => {
+      this.decimals = value;
+    }).catch(reason => console.error(reason));
+    this.casinoTokenService.getOwnerAddress().then(value => {
+      this.ownerAddress = value;
+    }).catch(reason => console.error(reason));
+    this.casinoTokenService.getTotalSupply().then(value => {
+      this.totalSupply = value;
+    }).catch(reason => console.error(reason));
   }
 
   ngOnInit() {
   }
 
+  onAddressChange(address: string) {
+  }
+
+  @Input()
+  set address(address: string) { this._address = address; this.onAddressChange(this._address); }
+  get address(): string { return this._address; }
 }

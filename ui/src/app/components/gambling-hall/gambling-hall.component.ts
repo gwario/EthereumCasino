@@ -1,74 +1,70 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {GamblingHallService} from "../../service/gambling-hall.service";
 import {Game} from "../../model/game";
-import {GamblingHall} from "../../model/gambling-hall";
-import {AccountService} from "../../service/account.service";
-import {Casino} from "../../model/casino";
+import {ContractService} from "../../service/contract.service";
+import {Web3Service} from "../../service/web3.service";
+import {OnAddressChange} from "../../on-address-change";
 
 @Component({
   selector: 'app-gambling-hall',
   templateUrl: './gambling-hall.component.html',
   styleUrls: ['./gambling-hall.component.css']
 })
-export class GamblingHallComponent implements OnInit {
+export class GamblingHallComponent implements OnInit, OnAddressChange {
 
+  private _address: string;
+
+  name: string;
+  ownerAddress: string;
+  managerAddress: string;
+  casinoAddress: string;
   games: Game[];
-  gamblingHall: GamblingHall;
 
-  constructor(private gamblingHallService: GamblingHallService,
-              private accountService: AccountService) {
+  constructor(private contractService: ContractService,
+              private gamblingHallService: GamblingHallService,
+              private web3Service: Web3Service) {
 
     this.games = [];
-    this.gamblingHall = new GamblingHall();
-    this.gamblingHall.casino = new Casino();
 
     this.gamblingHallService.getName().then(name => {
-      this.gamblingHall.name = name;
-    });
-    this.gamblingHallService.getAddress().then(address => {
-      accountService.getContractAccount(address).then(account => {
-        this.gamblingHall.address = account.address;
-        this.gamblingHall.tokenBalance = account.tokenBalance;
-        this.gamblingHall.etherBalance = account.etherBalance;
-      }).catch(reason => console.error("accountService.getContractAccount(this.gamblingHall.address/"+this.gamblingHall.address+")", reason));
-    });
-
+      this.name = name;
+    }).catch(reason => console.error(reason));
     this.gamblingHallService.getCasinoAddress().then(address => {
-      this.gamblingHall.casino.address = address;
-    });
+      this.casinoAddress = address;
+    }).catch(reason => console.error(reason));
     this.gamblingHallService.getOwnerAddress().then(address => {
-      this.accountService.getExternalAccount(address).then(externalAccount => {
-        this.gamblingHall.owner = externalAccount;
-      }).catch(reason => console.error("accountService.getExternalAccount(this.gamblingHall.owner.address/"+this.gamblingHall.owner.address+")", reason));
-    });
+      this.ownerAddress = address;
+    }).catch(reason => console.error(reason));
     this.gamblingHallService.getManagerAddress().then(address => {
-      this.accountService.getExternalAccount(address).then(externalAccount => {
-        this.gamblingHall.manager = externalAccount;
-      }).catch(reason => console.error("accountService.getExternalAccount(this.gamblingHall.manager.address/"+this.gamblingHall.manager.address+")", reason));
-    });
-
+      this.managerAddress = address;
+    }).catch(reason => console.error(reason));
     this.gamblingHallService.getGameNames().then(gameNames => {
       gameNames.forEach(gameName => {
         this.gamblingHallService.getGameAddress(gameName).then(gameAddress => {
           this.gamblingHallService.getGameType(gameName).then(gameType => {
-            this.accountService.getContractAccount(gameAddress).then(account => {
-              console.log(account)
-              const game = new Game();
-              game.address = account.address;
-              game.tokenBalance = account.tokenBalance;
-              game.etherBalance = account.etherBalance;
-              game.name = gameName;
-              game.type = gameType;
-              game.gamblingHall = this.gamblingHall;
-              this.games.push(game);
-              console.log(this.games)
-            });
+
+            let game = new Game();
+
+            game.address = gameAddress;
+            game.name = this.web3Service.hexToUtf8(gameName);
+            game.type = this.web3Service.hexToUtf8(gameType);
+
+            this.games.push(game);
+
+            console.log("this.games", this.games)
           });
-        }).catch(reason => console.error("accountService.getGameNames()", reason));
+        });
       });
-    });
+    }).catch(reason => console.error(reason));
   }
 
   ngOnInit() {
   }
+
+  onAddressChange(address: string) {
+  }
+
+  @Input()
+  set address(address: string) { this._address = address; this.onAddressChange(this._address); }
+  get address(): string { return this._address; }
 }

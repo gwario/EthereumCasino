@@ -1,93 +1,69 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {CasinoService} from "../../service/casino.service";
-import {Casino} from "../../model/casino";
 import {CasinoTokenService} from "../../service/casino-token.service";
 import {GamblingHallService} from "../../service/gambling-hall.service";
 import {AccountService} from "../../service/account.service";
-import {ExternalAccount} from "../../model/external-account";
-import {InviteComponent} from "../../dialogs/invite/invite.component";
-import {MatDialog} from "@angular/material";
-import {CasinoToken} from "../../model/casino-token";
-import {GamblingHall} from "../../model/gambling-hall";
-
-declare let window: any;
+import {ContractService} from "../../service/contract.service";
+import {Web3Service} from "../../service/web3.service";
+import {OnAddressChange} from "../../on-address-change";
+import BigNumber from "bignumber.js";
 
 @Component({
   selector: 'app-casino',
   templateUrl: './casino.component.html',
   styleUrls: ['./casino.component.css']
 })
-export class CasinoComponent implements OnInit {
+export class CasinoComponent implements OnInit, OnAddressChange {
 
-  casino: Casino;
+  private _address: string;
 
-  accounts: ExternalAccount[];
+  name: string;
+  opened: boolean;
+  tokenPrice: BigNumber;
+  exchangeFee: BigNumber;
+
+  ownerAddress: string;
+  managerAddress: string;
+  tokenAddress: string;
+  gamblingHallAddress: string;
 
   constructor(private casinoServce: CasinoService,
               private casinoTokenService: CasinoTokenService,
               private gamblingHallService: GamblingHallService,
               private accountService: AccountService,
-              public dialog: MatDialog) {
+              private contractService: ContractService,
+              private web3Service: Web3Service) {
 
-    this.casino = new Casino();
-    this.casino.token = new CasinoToken();
-    this.casino.gamblingHall = new GamblingHall();
+    this.tokenPrice = new BigNumber(0);
+    this.exchangeFee = new BigNumber(0);
+    this.tokenAddress = this.casinoTokenService.getAddress();
+    this.gamblingHallAddress = this.gamblingHallService.getAddress();
 
-    //populate casino object
-    casinoServce.getAddress().then(address => {
-      accountService.getContractAccount(address).then(account => {
-        this.casino.address = account.address;
-        this.casino.tokenBalance = account.tokenBalance;
-        this.casino.etherBalance = account.etherBalance;
-      }).catch(reason => console.error("accountService.getContractAccount(this.casino.address/"+this.casino.address+")", reason));
-    });
-    casinoServce.getName().then(value => {
-      this.casino.name = value;
-    });
-    casinoServce.getOwnerAddress().then(address => {
-      accountService.getExternalAccount(address).then(externalAccount => {
-        this.casino.owner = externalAccount;
-      }).catch(reason => console.error("accountService.getExternalAccount(this.casino.owner.address/"+this.casino.owner.address+")", reason));
-    });
-    casinoServce.getManagerAddress().then(address => {
-      accountService.getExternalAccount(address).then(externalAccount => {
-          this.casino.manager = externalAccount;
-        }).catch(reason => console.error("accountService.getExternalAccount(this.casino.manager.address/"+this.casino.manager.address+")", reason));
-    });
-
-    casinoTokenService.getSymbol().then(value => {
-      this.casino.token.symbol = value;
-    });
-    casinoTokenService.getAddress().then(value => {
-      this.casino.token.address = value;
-    });
-    gamblingHallService.getAddress().then(value => {
-      this.casino.gamblingHall.address = value;
-    });
-    casinoServce.isOpened().then(value => {
-      this.casino.opened = value;
-    });
-    casinoServce.getTokenPrice().then(value => {
-      this.casino.tokenPrice = value;
-    });
-    casinoServce.getExchangeFee().then(value => {
-      this.casino.exchangeFee = value;
-    });
+    this.casinoServce.getOwnerAddress().then(address => {
+      this.ownerAddress = address;
+    }).catch(reason => console.error(reason));
+    this.casinoServce.getManagerAddress().then(address => {
+      this.managerAddress = address;
+    }).catch(reason => console.error(reason));
+    this.casinoServce.isOpened().then(value => {
+      this.opened = value;
+    }).catch(reason => console.error(reason));
+    this.casinoServce.getTokenPrice().then(value => {
+      this.tokenPrice = this.web3Service.fromWei(value, 'ether');
+    }).catch(reason => console.error(reason));
+    this.casinoServce.getExchangeFee().then(value => {
+      this.exchangeFee = this.web3Service.fromWei(value, 'ether');
+    }).catch(reason => console.error(reason));
   }
 
   ngOnInit() {
   }
 
-  openInviteDialog() {
-    let dialogRef = this.dialog.open(InviteComponent);
-    dialogRef.afterClosed().subscribe(address => {
-      console.log(address)
-      if(address) {
-        console.debug("invite: ", address);
-        this.accountService.invite(address);
-      } else {
-        console.debug("invite: cancel");
-      }
-    });
+  onAddressChange(address: string) {
+
   }
+
+  @Input()
+  set address(address: string) { this._address = address; this.onAddressChange(this._address); }
+  get address(): string { return this._address; }
 }
