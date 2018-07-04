@@ -121,7 +121,14 @@ export class AccountComponent implements OnInit, OnAddressChange {
 
         this.casinoService.getExchangeFee().then(exchangeFee => {
           this.casinoService.getTokenPrice().then(tokenPrice => {
-            let valueEther = tokens.times(tokenPrice).plus(exchangeFee);
+            // console.log("tokenPrice", tokenPrice.toString())
+            // console.log("exchangeFee", exchangeFee.toString())
+            // console.log("tokens", tokens.toString())
+            // console.log("tokens * tokenPrice", tokens.toNumber()*tokenPrice.toNumber())
+            // console.log("tokens.mul(tokenPrice)", tokens.mul(tokenPrice).toString())
+            // console.log("tokens * tokenPrice + exchangeFee", new BigNumber(tokens.toString()).times(tokenPrice.toString()).plus(exchangeFee.toString()).toString())
+            // console.log("tokens.mul(tokenPrice).add(exchangeFee)", tokens.mul(tokenPrice).add(exchangeFee).toString())
+            let valueEther = tokens.mul(tokenPrice).add(exchangeFee);
 
             this.casinoService.buy(valueEther, this.address);
           });

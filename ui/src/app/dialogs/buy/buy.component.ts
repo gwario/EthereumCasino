@@ -14,6 +14,7 @@ import {PriceService} from "../../service/price.service";
 export class BuyComponent implements OnInit {
 
   tokens: number;
+  tokensBN: BN;
   exchangeFee: BN;
   tokenPrice: BN;
   euroPerWei: BigNumber;
@@ -27,6 +28,7 @@ export class BuyComponent implements OnInit {
     this.exchangeFee = new BN(0);
     this.tokenPrice = new BN(0);
     this.tokens = 50;
+    this.tokensBN = new BN(this.tokens);
     this.euroPerWei = new BigNumber(0);
 
     this.casinoService.getExchangeFee()
@@ -38,6 +40,10 @@ export class BuyComponent implements OnInit {
     this.priceService.eurPerWei().subscribe(value => this.euroPerWei = value);
   }
 
+
+  updateTokensBn() {
+    this.tokensBN = new BN(this.tokens);
+  }
 
   ngOnInit() {
   }

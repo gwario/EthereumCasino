@@ -10,13 +10,13 @@ export class CasinoService {
   constructor(private web3Service: Web3Service) {}
 
   //////////////////////////
-  buy(valueEther: BN, from: string) {
+  buy(value: BN, from: string) {
 
-    console.log("buy", "valueEther: "+valueEther, "from: "+from);
+    console.log("buy", "valueEther: ",value, "from: "+from);
 
     return this.web3Service.casinoContract.methods.buy().send({
       from: from,
-      value: valueEther.toString()
+      value: value.toString()
     });
   }
 

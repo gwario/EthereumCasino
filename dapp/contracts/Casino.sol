@@ -25,9 +25,8 @@ contract Casino is RBAC, ERC223Receiver {
      * @param _sender   the sender.
      * @param _origin   the customer.
      * @param _value    the value.
-     * @param _data     the data. "production" or a game's address.
      */
-    event PaymentReceived(address _sender, address _origin, uint _value, bytes _data);
+    event RevenueReceived(address _sender, address _origin, uint _value);
 
     /**
      * @dev Emitted when the owner transfers wei from the casino.
@@ -225,18 +224,18 @@ contract Casino is RBAC, ERC223Receiver {
      * @dev Transfers tokens to the customer.
      * @param _customer the receiver of the tokens.
      */
-    //TEST:
+    //TEST: DONE
     function buyInternal(address _customer) internal isOpened returns (bool success) {
         require(0 < msg.value);
         require(_customer != address(0));
 
-        uint paidFee = msg.value % tokenPrice;
+        require(msg.value > exchangeFee);
+        uint paid = msg.value.sub(exchangeFee);
 
-        require(paidFee == exchangeFee);
+        require(paid % tokenPrice == 0);
+        uint customerTokens = paid.div(tokenPrice);
 
-        uint customerTokens = msg.value.div(tokenPrice);
-
-        require(customerTokens < token.balanceOf(address(this)));
+        require(customerTokens <= token.balanceOf(address(this)));
 
         //transfer from the casino contract to the customer
         success = token.transfer(_customer, customerTokens);
@@ -247,30 +246,27 @@ contract Casino is RBAC, ERC223Receiver {
 
     /**
      * @dev Returns wei minus the fee, for the customer tokens
-     * @param _customer the buyer of the tokens.
      */
-    //TEST:
-    function cashoutInternal(address _customer) internal isOpened returns (bool success) {
-        require(_customer != address(0));
+    //TEST: DONE
+    function cashoutTokens(address _customer) internal payable isOpened returns (bool success) {
 
-        uint customerTokenBalance = token.balanceOf(_customer);
-        uint customerEtherBalance = customerTokenBalance.mul(tokenPrice);
+        uint customerTokens = token.balanceOf(_customer);
+        require(0 < customerTokens);
 
         //check balance of the casino
-        require(customerEtherBalance < address(this).balance);
+        uint customerEtherForTokens = customerTokens.mul(tokenPrice);
+        require(customerEtherForTokens.sub(exchangeFee) <= address(this).balance);
 
         //transfer tokens back to casino
-        require(token.transfer(address(this), customerTokenBalance));
-
+        require(token.transfer(address(this), customerTokens));
         //transfer from the casino to the customer and minus fee
-        _customer.transfer(customerEtherBalance.sub(exchangeFee));
+        msg.sender.transfer(customerEtherForTokens.sub(exchangeFee));
 
-        emit CustomerPaidOut(_customer, customerTokenBalance);
+        emit CustomerPaidOut(_customer, customerTokens);
         emit EtherBalanceChanged(address(this).balance);
 
         success = true;
     }
-
 
     /**
      * @dev Payout to beneficiary.
@@ -298,26 +294,73 @@ contract Casino is RBAC, ERC223Receiver {
         emit EtherBalanceChanged(address(this).balance);
     }
 
-    /** @dev has to be implemented by a casino to receive price... */
-    //TEST:
-    function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success) {
+    /**
+     * @dev Handles produced tokens. The casino cannot receive tokens which are not backed by ether.
+     * @return true on success, otherwise false.
+     */
+    //TEST: DONE
+    function handleTokenProduction() internal returns (bool success) {
 
-        if(keccak256(_data) == keccak256("production")) {
+        //ensure winnings can be cashed out.
+        require(token.balanceOf(address(this)).mul(tokenPrice) <= address(this).balance);
 
-            //ensure winnings can be cashed out.
-            require(token.balanceOf(address(this)).mul(tokenPrice) <= address(this).balance);
-
-            emit TokenBalanceChanged(token.balanceOf(address(this)));
-
-        } else {
-            //no need to handle things... tokens go out from the casino and go back to it.
-            //TODO maybe burn the received tokens in the future?!?!
-
-            emit PaymentReceived(_sender, _origin, _value, _data);
-        }
+        emit TokenBalanceChanged(token.balanceOf(address(this)));
 
         success = true;
     }
+
+    /**
+     * @dev Handles the of tokens to be cashed out to a customer.
+     * @param _customer the previous owner of the tokens.
+     * @param _value the amount of tokens.
+     * @return true on success, otherwise false.
+     */
+    //TEST: DONE
+    function handleTokenCashout(address _customer, uint _value) internal isOpened returns (bool success) {
+        require(0 < _value);
+
+        //check balance of the casino
+        uint customerEtherForTokens = _value.mul(tokenPrice).sub(exchangeFee);
+        require(customerEtherForTokens <= address(this).balance);
+
+        //transfer from the casino to the customer and minus fee
+        _sender.transfer(customerEtherForTokens.sub(exchangeFee));
+
+        emit CustomerPaidOut(_customer, _value);
+        emit EtherBalanceChanged(address(this).balance);
+
+        success = true;
+    }
+
+    /**
+     * @dev Handles the reception of tokens. Games transfer revenue to the casino.
+     * @param _sender the sender.
+     * @param _origin the previous owner of the tokens.
+     * @param _value the amount of tokens.
+     * @return true on success, otherwise false.
+     */
+    //TEST:
+    function handleTokenReception(address _sender, address _origin, uint256 _value) internal isOpened returns (bool success) {
+
+        emit RevenueReceived(_sender, _origin, _value);
+
+        success = true;
+    }
+
+    /**
+     * @dev Has to be implemented by a casino. The transfer has already taken place. Serious errors should revert.
+     * @dev To act on received price money,
+     * @dev To act on produced tokens
+     * @dev To act on customer token cash-out
+     * @param _sender the sender.
+     * @param _origin the previous owner of the tokens.
+     * @param _value the amount of tokens.
+     * @param _data the supplied data.
+     * @return true on success, otherwise false.
+     */
+    //TEST:
+    function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success);
+
 
     /**
      * @dev Pays the win to the winner.

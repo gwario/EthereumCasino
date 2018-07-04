@@ -32,17 +32,17 @@ contract ThrowProxy {
         return target.call(data);
     }
 
-    function constructorTest(bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (bool) {
-        return this.doCreate(_name, _prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
+    function constructorTest(uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (bool) {
+        return this.doCreate(_prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
     }
 
-    function doCreate(bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (bool) {
-        new AllOrNothingSlotmachine(_name, _prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
+    function doCreate(uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (bool) {
+        new AllOrNothingSlotmachine(_prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
         return true;
     }
 
-    function create(bytes32 _name, uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (AllOrNothingSlotmachine) {
-        return new AllOrNothingSlotmachine(_name, _prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
+    function create(uint _prize, uint _price, uint _deposit, uint _possibilities, address _gamblingHallAddress, uint8 _targetBlockOffset) public returns (AllOrNothingSlotmachine) {
+        return new AllOrNothingSlotmachine(_prize, _price, _deposit, _possibilities, _gamblingHallAddress, _targetBlockOffset);
     }
 }
 
@@ -57,7 +57,7 @@ contract TestAllOrNothingSlotmachine {
     function testConstructor_validParameters_shouldSucceed() public {
 
         ThrowProxy throwProxy = new ThrowProxy(address(0));
-        bool success = throwProxy.constructorTest.gas(200000)("Slotmachine1",
+        bool success = throwProxy.constructorTest.gas(2000000)(
             SLOTMACHINE_PRIZE, SLOTMACHINE_PRICE, SLOTMACHINE_DEPOSIT, SLOTMACHINE_POSSIBILITIES,
             DeployedAddresses.SimpleGamblingHall(), SLOTMACHINE_TARGET_BLOCK_OFFSET
         );

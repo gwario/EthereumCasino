@@ -178,7 +178,7 @@ export class AppComponent implements OnInit {
 
   /**
    * Handles casino events:
-   * // event PaymentReceived(address _sender, address _origin, uint _value, bytes _data);
+   * // event RevenueReceived(address _sender, address _origin, uint _value);
    * // event OwnerPaidOut(address _owner, uint _value);
    * // event CustomerPaidOut(address _customer, uint _value);
    * // event CustomerBoughtIn(address _customer, uint _tokens);
@@ -210,8 +210,8 @@ export class AppComponent implements OnInit {
         return "Casino was closed!";
       case "Opened":
         return "Casino was opened!";
-      case "PaymentReceived":
-        console.log("PaymentReceived", "Sender: "+ARGS._sender, "Origin: "+ARGS._origin, "Value: "+ARGS._value, "Data:"+ARGS. _data)
+      case "RevenueReceived":
+        console.log("RevenueReceived", "Sender: "+ARGS._sender, "Origin: "+ARGS._origin, "Value: "+ARGS._value)
         return null;
       case "OwnerPaidOut":
         console.log("OwnerPaidOut", "Owner: "+ARGS._owner, "Value: "+ARGS._value);

@@ -36,7 +36,7 @@ contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20Basic("
      * @param _casinoAddress    the casino.
      * @param _amount           the amount of tokens.
      */
-    //TEST:
+    //TEST: DONE
     function produce(address _casinoAddress, uint256 _amount) public onlyOwner returns (bool success) {
         require(_casinoAddress != address(0));
         require(_amount > 0);
