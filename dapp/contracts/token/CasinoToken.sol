@@ -23,9 +23,19 @@ contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20Basic("
      */
     event ProductionFinished(address indexed _owner, uint256 _amount);
 
+    /**
+     * @dev Emitted when a customer transfers wei from the casino, i.e. he sells tokens.
+     * @param _owner    the customer.
+     * @param _value    the value.
+     */
+    event CustomerPaidOut(address indexed _owner, uint _value);
+
     /*
      * Fields.
      */
+    bytes public constant TOKEN_TRANSFER_DATA_PRODUCTION = "tokenProduction";
+    bytes public constant TOKEN_TRANSFER_DATA_CASH_OUT = "tokenCashout";
+    bytes public constant TOKEN_TRANSFER_DATA_RECEPTION = new bytes(0);
 
     /*
      * Business functions.
@@ -37,15 +47,23 @@ contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20Basic("
      * @param _amount           the amount of tokens.
      */
     //TEST: DONE
-    function produce(address _casinoAddress, uint256 _amount) public onlyOwner returns (bool success) {
+    function produce(address _casinoAddress, uint256 _amount) public onlyOwner {
         require(_casinoAddress != address(0));
         require(_amount > 0);
 
         assert(mint(owner, _amount));
-        assert(transfer(_casinoAddress, _amount, "production"));
-
-        success = true;
+        assert(transfer(_casinoAddress, _amount, TOKEN_TRANSFER_DATA_PRODUCTION));
 
         emit ProductionFinished(_casinoAddress, _amount);
+    }
+
+    //TEST: DONE
+    function cashout(address _casinoAddress, uint256 _amount) public {
+        require(_casinoAddress != address(0));
+        require(_amount > 0);
+
+        assert(transfer(_casinoAddress, _amount, TOKEN_TRANSFER_DATA_CASH_OUT));
+
+        emit CustomerPaidOut(msg.sender, _amount);
     }
 }

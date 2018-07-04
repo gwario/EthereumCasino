@@ -36,13 +36,6 @@ contract Casino is RBAC, ERC223Receiver {
     event OwnerPaidOut(address _owner, uint _value);
 
     /**
-     * @dev Emitted when a customer transfers wei from the casino, i.e. he sells tokens.
-     * @param _customer the customer.
-     * @param _value    the value.
-     */
-    event CustomerPaidOut(address _customer, uint _value);
-
-    /**
      * @dev Emitted when a customer transfers wei to the casino, i.e. he buys tokens.
      * @param _customer the customer.
      * @param _tokens   the number of tokens.
@@ -245,30 +238,6 @@ contract Casino is RBAC, ERC223Receiver {
     }
 
     /**
-     * @dev Returns wei minus the fee, for the customer tokens
-     */
-    //TEST: DONE
-    function cashoutTokens(address _customer) internal payable isOpened returns (bool success) {
-
-        uint customerTokens = token.balanceOf(_customer);
-        require(0 < customerTokens);
-
-        //check balance of the casino
-        uint customerEtherForTokens = customerTokens.mul(tokenPrice);
-        require(customerEtherForTokens.sub(exchangeFee) <= address(this).balance);
-
-        //transfer tokens back to casino
-        require(token.transfer(address(this), customerTokens));
-        //transfer from the casino to the customer and minus fee
-        msg.sender.transfer(customerEtherForTokens.sub(exchangeFee));
-
-        emit CustomerPaidOut(_customer, customerTokens);
-        emit EtherBalanceChanged(address(this).balance);
-
-        success = true;
-    }
-
-    /**
      * @dev Payout to beneficiary.
      */
     //TEST:
@@ -324,9 +293,9 @@ contract Casino is RBAC, ERC223Receiver {
         require(customerEtherForTokens <= address(this).balance);
 
         //transfer from the casino to the customer and minus fee
-        _sender.transfer(customerEtherForTokens.sub(exchangeFee));
+        _customer.transfer(customerEtherForTokens.sub(exchangeFee));
 
-        emit CustomerPaidOut(_customer, _value);
+        emit TokenBalanceChanged(token.balanceOf(address(this)));
         emit EtherBalanceChanged(address(this).balance);
 
         success = true;

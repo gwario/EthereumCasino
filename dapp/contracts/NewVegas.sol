@@ -20,9 +20,6 @@ contract NewVegas is Casino {
     /*
      * Fields.
      */
-    string public constant TOKEN_TRANSFER_DATA_PRODUCTION = "tokenProduction";
-    string public constant TOKEN_TRANSFER_DATA_CASH_OUT = "tokenCashout";
-    bytes private constant TOKEN_TRANSFER_DATA_RECEPTION = new bytes(0);
 
     /**
      * @param _tokenAddress the address of the initial token.
@@ -46,38 +43,13 @@ contract NewVegas is Casino {
      */
 
     /**
+     * TODO consider putting this along with other token related functions to another contract e.g. bank!
      * @dev Transfers tokens to the customer.
      * @dev requires a fee.
      */
     //TEST: DONE
     function buyTokens() external payable {
         assert(buyInternal(msg.sender));
-    }
-
-    /**
-     * @dev Returns wei for the customer tokens.
-     * @dev requires a fee.
-     * @dev this is deprecated! Use CasinoToken.transfer(casino,value,"cashoutTokens")
-     */
-    //TEST: DONE
-    function cashout() external payable isOpened returns (bool success) {
-//        uint customerTokens = token.balanceOf(msg.sender);
-//        require(0 < customerTokens);
-//
-//        //check balance of the casino
-//        uint customerEtherForTokens = customerTokens.mul(tokenPrice);
-//        require(customerEtherForTokens.sub(exchangeFee) <= address(this).balance);
-//
-//        //transfer tokens back to casino
-//        require(token.transfer(address(this), customerTokens));
-//        //transfer from the casino to the customer and minus fee
-//        msg.sender.transfer(customerEtherForTokens.sub(exchangeFee));
-//
-//        emit CustomerPaidOut(msg.sender, customerTokens);
-//        emit EtherBalanceChanged(address(this).balance);
-//
-//        success = true;
-        revert();
     }
 
     /**
@@ -93,16 +65,17 @@ contract NewVegas is Casino {
      */
     //TEST:
     function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success) {
+        require(msg.sender == address(token));
 
-        if(keccak256(_data) == keccak256(TOKEN_TRANSFER_DATA_PRODUCTION)) {
+        if(keccak256(_data) == keccak256(token.TOKEN_TRANSFER_DATA_PRODUCTION())) {
 
             success = handleTokenProduction();
 
-        } else if(keccak256(_data) == keccak256(TOKEN_TRANSFER_DATA_CASH_OUT)) {
+        } else if(keccak256(_data) == keccak256(token.TOKEN_TRANSFER_DATA_CASH_OUT())) {
 
             success = handleTokenCashout(_origin, _value);
 
-        } else if(keccak256(_data) == keccak256(TOKEN_TRANSFER_DATA_RECEPTION)) {
+        } else if(keccak256(_data) == keccak256(token.TOKEN_TRANSFER_DATA_RECEPTION())) {
 
             success = handleTokenReception(_sender, _origin, _value);
 

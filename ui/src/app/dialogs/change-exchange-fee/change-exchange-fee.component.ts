@@ -58,5 +58,4 @@ export class ChangeExchangeFeeComponent implements OnInit {
   exchangeFeeEther() {
     return this.web3Service.fromWei(this.exchangeFee.toString(), 'ether');
   }
-
 }

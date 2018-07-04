@@ -7,7 +7,7 @@ const SimpleGamblingHall = artifacts.require("./SimpleGamblingHall.sol");
 const NewVegas = artifacts.require("./NewVegas.sol");
 const AllOrNothingSlotmachine = artifacts.require("./game/AllOrNothingSlotmachine.sol");
 
-contract('Casino', function (accounts) {
+contract('Casino - CasinoToken', function (accounts) {
 
     const TOKEN_OWNER = accounts[0];
     const GAMBLING_HALL_OWNER = accounts[1];
@@ -51,70 +51,61 @@ contract('Casino', function (accounts) {
         await casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
     });
 
-    //open
-    it("SomeGuy opens => should revert", async () => {
-        assert.equal(await casino.opened(), false, "Should be closed!");
+    //produce
+    it("Some guy produces => should revert", async () => {
+        await casino.stockup({from: CASINO_OWNER, value: PRODUCTION_AMOUNT.times(INITIAL_TOKEN_PRICE).plus(INITIAL_EXCHANGE_FEE).toNumber()});
         try {
-            await casino.open({from: SOME_GUY});
+            await casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: SOME_GUY});
             assert.fail(null, null, "Should not be reached!");
         } catch(err) {
-            assert.equal(await casino.opened(), false, "Should be closed!");
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
     });
-    it("Owner opens => should succeed", async () => {
-        assert.equal(await casino.opened(), false, "Should be closed!");
-        await casino.open({from: CASINO_OWNER});
-        assert.equal(await casino.opened(), true, "Should be opened!");
-    });
-    it("Is opened -> owner opens => should revert", async () => {
-        await casino.open({from: CASINO_OWNER});
-        assert.equal(await casino.opened(), true, "Should be opened!");
-        try {
-            await casino.open({from: CASINO_OWNER});
-            assert.fail(null, null, "Should not be reached!");
-        } catch(err) {
-            assert.equal(await casino.opened(), true, "Should be opened!");
-            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
-        }
-    });
-
-    //close
-    it("SomeGuy closes => should revert", async () => {
-        await casino.open({from: CASINO_OWNER});
-        assert.equal(await casino.opened(), true, "Should be opened!");
+    it("TokenOwner produces to casino not backed by wei => should revert", async () => {
 
         try {
-            await casino.close({from: SOME_GUY});
+            await casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
             assert.fail(null, null, "Should not be reached!");
         } catch(err) {
-            assert.equal(await casino.opened(), true, "Should be opened!");
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
     });
-    it("Owner closes => should succeed", async () => {
-        await casino.open({from: CASINO_OWNER});
-        assert.equal(await casino.opened(), true, "Should be opened!");
+    it("TokenOwner produces to casino backed by wei => should succeed", async () => {
+        let initalBalance = web3.eth.getBalance(casino.address).toNumber();
+        let initalTokenBalance = (await casinoToken.balanceOf(casino.address)).toNumber();
+        let value = PRODUCTION_AMOUNT.times(INITIAL_TOKEN_PRICE).plus(INITIAL_EXCHANGE_FEE).toNumber();
+        let result = await casino.stockup({from: CASINO_OWNER, value: value});
+        assert.web3Event(result, {
+            event: 'EtherBalanceChanged',
+            args: {
+                _newBalance: initalBalance+value,
+            }
+        }, 'Event(s) missing!');
 
-        await casino.close({from: CASINO_OWNER});
-        assert.equal(await casino.opened(), false, "Should be closed!");
-    });
-    it("Is closed -> owner closes => should revert", async () => {
-        assert.equal(await casino.opened(), false, "Should be closed!");
-        try {
-            await casino.close({from: CASINO_OWNER});
-            assert.fail(null, null, "Should not be reached!");
-        } catch(err) {
-            assert.equal(await casino.opened(), false, "Should be closed!");
-            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
-        }
+        result = await casinoToken.produce(casino.address, PRODUCTION_AMOUNT.toNumber(), {from: TOKEN_OWNER});
+        assert.web3SomeEvents(result, [
+            {
+                event: 'ProductionFinished',
+                args: {
+                    _owner: casino.address,
+                    _amount: PRODUCTION_AMOUNT.toNumber()
+                }
+                // }, { //does not work cause it was emitted in a sub contract-call
+                //     event: 'TokenBalanceChanged',
+                //     args: {
+                //         _newTokenBalance: PRODUCTION_AMOUNT.toNumber(),
+                //     }
+            }
+        ], 'Event(s) missing!');
+
+        assert.equal((await casinoToken.balanceOf(casino.address)).toNumber(), initalTokenBalance+PRODUCTION_AMOUNT.toNumber(), "Casino should own produced tokens.");
     });
 
     //buy
     it("SomeGuy buys tokens -> casino closed => should revert", async () => {
         try {
             await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).plus(1).toNumber()});
-            assert.notEqual(await casinoToken.balanceOf(SOME_GUY), 5, "Should not get all tokens!");
+            assert.notEqual((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 5, "Should not get all tokens!");
         } catch(err) {
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
@@ -123,7 +114,7 @@ contract('Casino', function (accounts) {
         await casino.open({from: CASINO_OWNER});
         try {
             await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).plus(1).toNumber()});
-            assert.notEqual(await casinoToken.balanceOf(SOME_GUY), 5, "Should not get all tokens!");
+            assert.notEqual((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 5, "Should not get all tokens!");
         } catch(err) {
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
@@ -159,7 +150,7 @@ contract('Casino', function (accounts) {
                 }
             },
         ], 'Event(s) missing!');
-        assert.equal(await casinoToken.balanceOf(SOME_GUY), 5, "Should have 5 tokens!");
+        assert.equal((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 5, "Should have 5 tokens!");
     });
 
     //cashout
@@ -182,7 +173,7 @@ contract('Casino', function (accounts) {
         await casino.buyTokens({from: SOME_GUY, value: value});
         try {
             await casinoToken.cashout(casino.address, 5, {from: SOME_GUY});
-            assert.notEqual(await web3.eth.getBalance(SOME_GUY), INITIAL_TOKEN_PRICE.times(5).plus(initialEtherBalance), "Should not get ether for all tokens!");
+            assert.notEqual(web3.eth.getBalance(SOME_GUY), INITIAL_TOKEN_PRICE.times(5).plus(initialEtherBalance), "Should not get ether for all tokens!");
         } catch(err) {
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
@@ -203,7 +194,6 @@ contract('Casino', function (accounts) {
         let initalTokenBalanceCasino = (await casinoToken.balanceOf(casino.address)).toNumber();
         let initalBalanceSomeGuy = web3.eth.getBalance(SOME_GUY).toNumber();
         let initalTokenBalanceSomeGuy = (await casinoToken.balanceOf(SOME_GUY)).toNumber();
-
 
         let value = INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).toNumber();
         await casino.buyTokens({from: SOME_GUY, value: value});
@@ -243,5 +233,9 @@ contract('Casino', function (accounts) {
         //buy: casino -> guy
         //cashout: guy -> casino
         assert.equal((await casinoToken.balanceOf(casino.address)).toNumber(), initalTokenBalanceCasino, "Should have initial amount of tokens!");
+
+        //TODO look at ass0.2 and include gas in the calculations in order to make this work
+        // assert.equal(await web3.eth.getBalance(SOME_GUY).toNumber(), initalBalanceSomeGuy-INITIAL_EXCHANGE_FEE.times(2).toNumber(), "Should have same as before minus two times exchange fee!");
+        // assert.equal(await web3.eth.getBalance(casino.address).toNumber(), initalBalanceCasino+INITIAL_EXCHANGE_FEE.times(2).toNumber(), "Should have same as before plus two times exchange fee!");
     });
 });

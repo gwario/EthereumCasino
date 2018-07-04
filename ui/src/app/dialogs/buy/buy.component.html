@@ -6,7 +6,6 @@
   <p>Token Price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice.toString()).toFixed(3)}} €)</p>
   <p>Exchange Fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee.toString()).toFixed(3)}} €)</p>
   <p>Tokens: {{euroPerWei.times(tokenPrice.muln(tokens).add(exchangeFee).toString()).toFixed(3)}} €</p>
-
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onCancelClick()">Cancel</button>
