@@ -1,11 +1,11 @@
 <h1 mat-dialog-title>Stock up the Casino's Ether balance</h1>
 <div mat-dialog-content>
   <mat-form-field>
-    <input matInput type="number" placeholder="Wei" [(ngModel)]="stockupWei" (change)="updateStockupTokens()" />
+    <input matInput type="text" placeholder="Wei" maxlength="18" [(ngModel)]="stockupWei" (input)="updateStockup()" />
   </mat-form-field>
-  <p>Stock up: {{stockupEther()}} Ξ ({{euroPerWei.times(tokenPrice.toString()).toFixed(3)}} €)</p>
+  <p>Stock up: {{stockupEther()}} Ξ ({{euroPerWei.times(stockupWei).toFixed(3)}} €)</p>
   <p>Token Price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice.toString()).toFixed(3)}} €)</p>
-  <p>Stock up for tokens: {{stockupTokens.toFixed(3, BigNumber.ROUND_DOWN)}} {{symbol}}</p>
+  <p>Stock up for tokens: {{stockupTokens.toFixed(3)}} {{symbol}}</p>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onCancelClick()">Cancel</button>

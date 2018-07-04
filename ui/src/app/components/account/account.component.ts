@@ -16,6 +16,8 @@ import {Web3Service} from "../../service/web3.service";
 import {OnAddressChange} from "../../on-address-change";
 import BN from "bn.js";
 import {ChangeTokenPriceComponent} from "../../dialogs/change-token-price/change-token-price.component";
+import {CashoutComponent} from "../../dialogs/cashout/cashout.component";
+import {ManageGamesComponent} from "../../dialogs/manage-games/manage-games.component";
 
 @Component({
   selector: 'app-account',
@@ -75,14 +77,27 @@ export class AccountComponent implements OnInit, OnAddressChange {
 
     //TODO listen for all events that can change this components content!
 
-    this.web3Service.casinoTokenContract.events.ProductionFinished({
-      filter: {_owner: this.address}
-    })
+    this.web3Service.casinoTokenContract.events.ProductionFinished({ filter: {_owner: this.address}})
+      .on('data', data =>
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = value))
+      .on('error', console.error);
+
+    this.web3Service.casinoContract.events.CustomerBoughtIn({ filter: {_customer: this.address}})
       .on('data', data => {
-        console.log("address: "+this.address, event); // same results as the optional callback above
-        this.casinoTokenService.getTokenBalance(this.address).then(value => {
-          // this.tokenBalance = value.toString();
-        });
+        this.web3Service.getBalance(this.address).then(value =>
+          this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = value);
+      })
+      .on('error', console.error);
+
+    this.web3Service.casinoTokenContract.events.CustomerPaidOut({ filter: {_owner: this.address}})
+      .on('data', data => {
+        this.web3Service.getBalance(this.address).then(value =>
+          this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = value);
       })
       .on('error', console.error);
 
@@ -104,12 +119,15 @@ export class AccountComponent implements OnInit, OnAddressChange {
     this.accountService.remove(this.address);
   }
 
-  cashout() {
-    console.debug("cashout");
-    this.casinoService.getExchangeFee().then(exchangeFee => {
-      this.casinoService.cashout(exchangeFee, this.address).then(value => {
-        console.log("cashout receipt", value)
-      });
+  openCashoutDialog() {
+    let dialogRef = this.dialog.open(CashoutComponent);
+    dialogRef.afterClosed().subscribe(tokens => {
+      if(tokens) {
+        console.debug("cashout: ", tokens);
+        this.casinoTokenService.cashout(tokens, this.address);
+      } else {
+        console.log("cashout receipt", tokens)
+      }
     });
   }
 
@@ -121,16 +139,8 @@ export class AccountComponent implements OnInit, OnAddressChange {
 
         this.casinoService.getExchangeFee().then(exchangeFee => {
           this.casinoService.getTokenPrice().then(tokenPrice => {
-            // console.log("tokenPrice", tokenPrice.toString())
-            // console.log("exchangeFee", exchangeFee.toString())
-            // console.log("tokens", tokens.toString())
-            // console.log("tokens * tokenPrice", tokens.toNumber()*tokenPrice.toNumber())
-            // console.log("tokens.mul(tokenPrice)", tokens.mul(tokenPrice).toString())
-            // console.log("tokens * tokenPrice + exchangeFee", new BigNumber(tokens.toString()).times(tokenPrice.toString()).plus(exchangeFee.toString()).toString())
-            // console.log("tokens.mul(tokenPrice).add(exchangeFee)", tokens.mul(tokenPrice).add(exchangeFee).toString())
-            let valueEther = tokens.mul(tokenPrice).add(exchangeFee);
-
-            this.casinoService.buy(valueEther, this.address);
+            let value = tokens.mul(tokenPrice).add(exchangeFee);
+            this.casinoService.buyTokens(value, this.address);
           });
         });
       } else {
@@ -187,11 +197,11 @@ export class AccountComponent implements OnInit, OnAddressChange {
 
   openStockupDialog() {
     let dialogRef = this.dialog.open(StockupEtherComponent);
-    dialogRef.afterClosed().subscribe(stockupEther => {
-      if(stockupEther) {
-        console.debug("stockup: ", stockupEther);
+    dialogRef.afterClosed().subscribe(stockupWei => {
+      if(stockupWei) {
+        console.debug("stockup: ", stockupWei);
 
-        this.casinoService.stockup(new BN(stockupEther.toString()), this.address);
+        this.casinoService.stockup(new BN(stockupWei), this.address);
       } else {
         console.debug("stockup: cancel");
       }
@@ -247,6 +257,12 @@ export class AccountComponent implements OnInit, OnAddressChange {
       }
     });
   }
+
+  openManageGamesDialog() {
+    console.debug("manage games");
+    let dialogRef = this.dialog.open(ManageGamesComponent, {data: {address: this.address}});
+  }
+
 
   hasNoRoles(): boolean {
     return this.roles.length == 0;
@@ -361,6 +377,12 @@ export class AccountComponent implements OnInit, OnAddressChange {
     return "The slotmachine must be available!";
   }
 
+  manageGamesEnabled() {
+    return this.isGamblingHallManager();
+  }
+  manageGamesDisabledTooltip() {
+    return "Account must be gambling hall manager!";
+  }
 
   @Input()
   set address(address: string) { this._address = address; this.onAddressChange(this._address); }

@@ -51,4 +51,18 @@ export class GamblingHallService {
       return this.web3Service.gamblingHallContract.methods.getGameType(this.web3Service.utf8ToHex(name)).call();
 
   }
+
+  addGame(name: string, address: string, from: string) {
+    if(this.web3Service.isHex(name))
+      return this.web3Service.gamblingHallContract.methods.addGame(name, address).send({from: from, gas: 200000});
+    else
+      return this.web3Service.gamblingHallContract.methods.addGame(this.web3Service.utf8ToHex(name), address).send({from: from, gas: 200000});
+  }
+
+  removeGame(name: string, from: string) {
+    if(this.web3Service.isHex(name))
+      return this.web3Service.gamblingHallContract.methods.removeGame(name).send({from: from});
+    else
+      return this.web3Service.gamblingHallContract.methods.removeGame(this.web3Service.utf8ToHex(name)).send({from: from});
+  }
 }

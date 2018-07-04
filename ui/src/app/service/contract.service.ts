@@ -28,17 +28,17 @@ export class ContractService {
     this._addressContract = new Map();
     this._contracts = new BehaviorSubject<ContractAccount[]>([]);
 
-    this.add(casinoService.getAddress());
-    this.add(casinoTokenService.getAddress());
-    this.add(gamblingHallService.getAddress());
-    this.add(slotmachineService.getAddress());
+    casinoService.getName().then(name => this.add(casinoService.getAddress(), name));
+    casinoTokenService.getName().then(name => this.add(casinoTokenService.getAddress(), name));
+    gamblingHallService.getName().then(name => this.add(gamblingHallService.getAddress(), name));
+    slotmachineService.getName().then(name => this.add(slotmachineService.getAddress(), name));
   }
 
-  public add(address: string): void {
+  public add(address: string, name: string): void {
 
     if(!this._addressContract.has(address)) {
       this._addressContract.set(address, new ContractAccount());
-      this.update(address);
+      this.update(address, name);
     }
   }
 
@@ -55,14 +55,13 @@ export class ContractService {
     return this._addressContract.get(address);
   }
 
-  public update(address: string): void {
+  private update(address: string, name: string): void {
 
     this.casinoTokenService.getTokensAndEther(address).then(tokensAndEther => {
       let account = this._addressContract.get(address);
       account = Object.assign(account, tokensAndEther);
-
+      account.name = name;
       this._contracts.next(Array.from(this._addressContract.values()));
-
     }).catch(reason => console.error(reason));
   }
 

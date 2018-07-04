@@ -14,12 +14,15 @@ import {CasinoTokenService} from "../../service/casino-token.service";
 })
 export class StockupEtherComponent implements OnInit {
 
-  stockupWei: BN;
+  stockupWei: number;
+  stockupWeiBN: BN;
   exchangeFee: BN;
   tokenPrice: BN;
   stockupTokens: BigNumber;
   euroPerWei: BigNumber;
   symbol: string;
+
+  tokenRoundingMode = BigNumber.ROUND_DOWN;
 
   constructor(public dialogRef: MatDialogRef<StockupEtherComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
@@ -28,7 +31,8 @@ export class StockupEtherComponent implements OnInit {
               private web3Service: Web3Service,
               private priceService: PriceService) {
 
-    this.stockupWei = new BN(0);
+    this.stockupWei = 0;
+    this.stockupWeiBN = new BN(0);
     this.tokenPrice = new BN(0);
     this.stockupTokens = new BigNumber(0);
     this.euroPerWei = new BigNumber(0);
@@ -39,8 +43,8 @@ export class StockupEtherComponent implements OnInit {
     this.casinoService.getTokenPrice()
       .then(value => {
         this.tokenPrice = value;
-        this.stockupWei = this.tokenPrice.muln(500);//suggest ether for 500 tokens
-        this.updateStockupTokens();
+        this.stockupWei = new BigNumber(50).times(this.tokenPrice.toString()).toNumber();//suggest ether for 500 tokens
+        this.updateStockup();
       });
 
     this.priceService.eurPerWei().subscribe(value => this.euroPerWei = value);
@@ -49,8 +53,11 @@ export class StockupEtherComponent implements OnInit {
   ngOnInit() {
   }
 
-  updateStockupTokens() {
-    this.stockupTokens = new BigNumber(this.stockupWei.div(this.tokenPrice).toString());
+  updateStockup() {
+    this.stockupTokens = new BigNumber(this.stockupWei.toString()).dividedBy(this.tokenPrice.toString());
+    console.log(this.stockupWei)
+    // console.log(new BN(this.stockupWei)) // putting it into a BN does not work
+    // this.stockupWeiBN = new BN(this.stockupWei);
   }
 
   onCancelClick(): void {

@@ -10,23 +10,13 @@ export class CasinoService {
   constructor(private web3Service: Web3Service) {}
 
   //////////////////////////
-  buy(value: BN, from: string) {
+  buyTokens(value: BN, from: string) {
 
-    console.log("buy", "valueEther: ",value, "from: "+from);
+    console.log("buy", "value: ",value, "from: "+from);
 
-    return this.web3Service.casinoContract.methods.buy().send({
+    return this.web3Service.casinoContract.methods.buyTokens().send({
       from: from,
       value: value.toString()
-    });
-  }
-
-  cashout(exchangeFee: BN, from: string) {
-
-    console.log("cashout", "exchangeFee: "+exchangeFee, "from: "+from);
-
-    return this.web3Service.casinoContract.methods.cashout().send({
-      from: from,
-      value: exchangeFee.toString()
     });
   }
   ///////////////////////

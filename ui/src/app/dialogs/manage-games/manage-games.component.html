@@ -1,3 +1,24 @@
-<p>
-  manage-games works!
-</p>
+<h1 mat-dialog-title>Invite an Account to Gamble at the Casino</h1>
+<div mat-dialog-content>
+  <mat-list>
+    <mat-list-item *ngFor="let name of gameNames()">
+      <h3 matLine> {{hexToUtf8(name)}} </h3>
+      <p matLine>
+        <span>{{games.get(name).address}} </span>
+        <button mat-icon-button (click)="removeGame(name)">
+          <mat-icon>remove_circle</mat-icon>
+        </button>
+      </p>
+    </mat-list-item>
+  </mat-list>
+  <mat-form-field>
+    <input matInput type="text" placeholder="Name" [(ngModel)]="name" />
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput type="text" placeholder="Address" [(ngModel)]="address" />
+  </mat-form-field>
+  <button mat-raised-button color="primary" cdkFocusInitial (click)="addGame()">Add Game</button>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Close</button>
+</div>

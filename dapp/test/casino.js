@@ -162,86 +162,151 @@ contract('Casino', function (accounts) {
         assert.equal(await casinoToken.balanceOf(SOME_GUY), 5, "Should have 5 tokens!");
     });
 
-    //cashout
-    it("SomeGuy cashout tokens -> casino closed => should revert", async () => {
-        await casino.open({from: CASINO_OWNER});
-        let value = INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).toNumber();
-        await casino.buyTokens({from: SOME_GUY, value: value});
-        await casino.close({from: CASINO_OWNER});
+    //payout
+    it("SomeGuy payout => should revert", async () => {
         try {
-            await casinoToken.cashout(casino.address, 5, {from: SOME_GUY});
+            await casino.payout({from: SOME_GUY});
             assert.fail(null, null, "Should not be reached!");
         } catch(err) {
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
     });
-    it("SomeGuy cashout tokens -> no exchange fee => should revert", async () => {
-        await casino.open({from: CASINO_OWNER});
-        let initialEtherBalance = await web3.eth.getBalance(SOME_GUY).toNumber();
-        let value = INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).toNumber();
-        await casino.buyTokens({from: SOME_GUY, value: value});
-        try {
-            await casinoToken.cashout(casino.address, 5, {from: SOME_GUY});
-            assert.notEqual(await web3.eth.getBalance(SOME_GUY), INITIAL_TOKEN_PRICE.times(5).plus(initialEtherBalance), "Should not get ether for all tokens!");
-        } catch(err) {
-            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
-        }
-    });
-    it("SomeGuy cashout tokens -> has none => should revert", async () => {
+    it("Owner payout -> casino opened => should revert", async () => {
         await casino.open({from: CASINO_OWNER});
         try {
-            await casinoToken.cashout(casino.address, 5, {from: SOME_GUY});
+            await casino.payout({from: CASINO_OWNER});
             assert.fail(null, null, "Should not be reached!");
         } catch(err) {
             assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
         }
     });
-    it("SomeGuy cashout tokens => should succeed", async () => {
-        await casino.open({from: CASINO_OWNER});
+    it("Owner payout => should succeed", async () => {
 
-        let initalBalanceCasino = web3.eth.getBalance(casino.address).toNumber();
-        let initalTokenBalanceCasino = (await casinoToken.balanceOf(casino.address)).toNumber();
-        let initalBalanceSomeGuy = web3.eth.getBalance(SOME_GUY).toNumber();
-        let initalTokenBalanceSomeGuy = (await casinoToken.balanceOf(SOME_GUY)).toNumber();
-
-
-        let value = INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).toNumber();
-        await casino.buyTokens({from: SOME_GUY, value: value});
-        let result = await casinoToken.cashout(casino.address, 5, {from: SOME_GUY});
-
+        let initalBalance = web3.eth.getBalance(casino.address).toNumber();
+        let result = await casino.payout({from: CASINO_OWNER});
         assert.web3Events(result, [
             {
-                event: 'Transfer',
+                event: 'OwnerPaidOut',
                 args: {
-                    from: SOME_GUY,
-                    to: casino.address,
-                    value: 5
+                    _owner: CASINO_OWNER,
+                    _value: initalBalance
                 }
             },
             {
-                event: 'CustomerPaidOut',
+                event: 'EtherBalanceChanged',
                 args: {
-                    _owner: SOME_GUY,
-                    _value: 5
+                    _newBalance: 0,
                 }
             },
-            // { // not delivered because from another contract
-            //     event: 'EtherBalanceChanged',
-            //     args: {
-            //         _newBalance: initalBalanceCasino+value+INITIAL_EXCHANGE_FEE.toNumber()-5*INITIAL_TOKEN_PRICE.toNumber(),
-            //     }
-            // },
-            // {
-            //     event: 'TokenBalanceChanged',
-            //     args: {
-            //         _newBalance: initalTokenBalanceCasino+value+INITIAL_EXCHANGE_FEE.toNumber()-5*INITIAL_TOKEN_PRICE.toNumber(),
-            //     }
-            // },
         ], 'Event(s) missing!');
-
-        assert.equal((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 0, "Should have 0 tokens!");
-        //buy: casino -> guy
-        //cashout: guy -> casino
-        assert.equal((await casinoToken.balanceOf(casino.address)).toNumber(), initalTokenBalanceCasino, "Should have initial amount of tokens!");
+        assert.equal(web3.eth.getBalance(casino.address).toNumber(), 0, "Should have 0 balance now!");
     });
+
+    //stockup
+    it("SomeGuy stockup => should revert", async () => {
+        try {
+            await casino.stockup({from: SOME_GUY});
+            assert.fail(null, null, "Should not be reached!");
+        } catch(err) {
+            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
+        }
+    });
+    it("Owner stockup => should succeed", async () => {
+
+        let initalBalance = web3.eth.getBalance(casino.address).toNumber();
+        let result = await casino.stockup({from: CASINO_OWNER, value: 10});
+        assert.web3Events(result, [
+            {
+                event: 'EtherBalanceChanged',
+                args: {
+                    _newBalance: initalBalance+10,
+                }
+            },
+        ], 'Event(s) missing!');
+        assert.equal(web3.eth.getBalance(casino.address).toNumber(), initalBalance+10, "Should have 0 balance now!");
+    });
+
+
+    //setExchangeFee
+    it("SomeGuy set exchange fee => should revert", async () => {
+        const EXCHANGE_FEE = 10;
+        try {
+            await casino.setExchangeFee(EXCHANGE_FEE, {from: SOME_GUY});
+            assert.fail(null, null, "Should not be reached!");
+        } catch(err) {
+            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
+        }
+    });
+    it("Owner set exchange fee -> casino opened => should revert", async () => {
+        const EXCHANGE_FEE = 10;
+        await casino.open({from: CASINO_OWNER});
+        try {
+            await casino.setExchangeFee(EXCHANGE_FEE, {from: CASINO_OWNER});
+            assert.fail(null, null, "Should not be reached!");
+        } catch(err) {
+            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
+        }
+    });
+    it("Owner set exchange fee => should succeed", async () => {
+        const EXCHANGE_FEE = 12354;
+        let result = await casino.setExchangeFee(EXCHANGE_FEE, {from: CASINO_OWNER});
+        assert.web3Events(result, [
+            {
+                event: 'ExchangeFeeChanged',
+                args: {
+                    _newExchangeFee: EXCHANGE_FEE,
+                }
+            },
+        ], 'Event(s) missing!');
+        assert.equal((await casino.exchangeFee()).toNumber(), EXCHANGE_FEE, "Should have new exchange fee now!");
+    });
+
+
+    //setTokenPrice
+    it("SomeGuy set token price => should revert", async () => {
+        const TOKEN_PRICE = 10;
+        try {
+            await casino.setTokenPrice(TOKEN_PRICE, {from: SOME_GUY});
+            assert.fail(null, null, "Should not be reached!");
+        } catch(err) {
+            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
+        }
+    });
+    it("Owner set token price -> casino opened => should revert", async () => {
+        const TOKEN_PRICE = 10;
+        await casino.open({from: CASINO_OWNER});
+        try {
+            await casino.setTokenPrice(TOKEN_PRICE, {from: CASINO_OWNER});
+            assert.fail(null, null, "Should not be reached!");
+        } catch(err) {
+            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
+        }
+    });
+    it("Owner set token price => should succeed", async () => {
+        const TOKEN_PRICE = 12354;
+        let result = await casino.setTokenPrice(TOKEN_PRICE, {from: CASINO_OWNER});
+        assert.web3Events(result, [
+            {
+                event: 'TokenPriceChanged',
+                args: {
+                    _newTokenPrice: TOKEN_PRICE,
+                }
+            },
+        ], 'Event(s) missing!');
+        assert.equal((await casino.tokenPrice()).toNumber(), TOKEN_PRICE, "Should have new token price now!");
+    });
+
+
+
+    // function payOutWin(address _customer, uint _prize, bytes32 _gameName) external senderIsGame(_gameName) returns (bool success) {
+    //     emit CustomerClaimed(_customer, _prize, _gameName);
+    //
+    // function setToken(address _tokenAddress) external isClosed onlyRole(ROLE_MANAGER) {
+    //     emit TokenChanged(_tokenAddress);
+    //     emit TokenBalanceChanged(token.balanceOf(address(this)));
+    //
+    // function setGamingHall(address _gamblingHallAddress) external isClosed onlyRole(ROLE_MANAGER) {
+    //     emit GamblingHallChanged(_gamblingHallAddress);
+    //
+
 });

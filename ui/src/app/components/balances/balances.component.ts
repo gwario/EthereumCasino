@@ -37,6 +37,8 @@ export class BalancesComponent implements OnInit, OnAddressChange {
 
     this.priceService.eurPerEther().subscribe(value => {
       this.etherBalanceEuro = this.etherBalance.times(value);
+    });
+    this.priceService.eurPerWei().subscribe(value => {
       this.tokenBalanceEuro = this.tokenBalance.times(this.tokenPrice).times(value);
     });
   }
@@ -52,34 +54,55 @@ export class BalancesComponent implements OnInit, OnAddressChange {
       console.debug("Got valid address: %s! Initializing component...", address);
     }
 
-    this.casinoTokenService.getTokenBalance(this.address).then(value => this.tokenBalance = value);
+    this.casinoTokenService.getTokenBalance(this.address).then(value => this.tokenBalance = new BigNumber(value.toString()));
     this.web3Service.getBalance(this.address).then(value => {
       this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether'));
     });
 
     //TODO listen for all events that can change this components content!
     // token produced
-    this.web3Service.casinoTokenContract.events.ProductionFinished({
-      filter: {_owner: this.address}
-    })
+    this.web3Service.casinoTokenContract.events.ProductionFinished({ filter: {_owner: this.address}})
+      .on('data', data =>
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = new BigNumber(value)))
+      .on('error', console.error);
+
+    //Casino only
+    if(this.address == this.web3Service.casinoContract.options.address) {
+
+      this.web3Service.casinoContract.events.EtherBalanceChanged()
+        .on('data', data =>
+          this.etherBalance = this.web3Service.fromWei(data.returnValues._newBalance, 'ether'))
+        .on('error', console.error);
+
+      this.web3Service.casinoContract.events.TokenBalanceChanged()
+        .on('data', data =>
+          this.tokenBalance = new BigNumber(data.returnValues._newTokenBalance))
+        .on('error', console.error);
+
+      this.web3Service.casinoContract.events.TokenPriceChanged()
+        .on('data', data =>
+          this.tokenPrice = new BigNumber(data.returnValues._newTokenPrice))
+        .on('error', console.error);
+    }
+
+    this.web3Service.casinoContract.events.CustomerBoughtIn({ filter: {_customer: this.address}})
       .on('data', data => {
-        console.log("address: "+this.address, event); // same results as the optional callback above
-        this.casinoTokenService.getTokenBalance(this.address).then(value => {
-          this.tokenBalance = value;
-        });
+        this.web3Service.getBalance(this.address).then(value =>
+          this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = value);
       })
       .on('error', console.error);
 
-    this.web3Service.casinoContract.events.EtherBalanceChanged({
-      filter: {}
-    }).on('data', data => {
-      console.log("event: ", data);
-      this.etherBalance = this.web3Service.fromWei(data.returnValues._newBalance, 'ether');
-    }).on('error', console.error);
-
-  // case "TokenBalanceChanged":
-  //   console.log("TokenBalanceChanged", "New token balance: "+ARGS._newTokenBalance);
-
+    this.web3Service.casinoTokenContract.events.CustomerPaidOut({ filter: {_owner: this.address}})
+      .on('data', data => {
+        this.web3Service.getBalance(this.address).then(value =>
+          this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = value);
+      })
+      .on('error', console.error);
   }
 
 

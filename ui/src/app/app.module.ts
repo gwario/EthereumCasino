@@ -15,6 +15,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatListModule} from '@angular/material/list';
 
 import {AppComponent} from './app.component';
 import {CasinoService} from "./service/casino.service";
@@ -39,6 +40,7 @@ import {ContractService} from "./service/contract.service";
 import {ChangeExchangeFeeComponent} from './dialogs/change-exchange-fee/change-exchange-fee.component';
 import { ManageGamesComponent } from './dialogs/manage-games/manage-games.component';
 import { ChangeTokenPriceComponent } from './dialogs/change-token-price/change-token-price.component';
+import { CashoutComponent } from './dialogs/cashout/cashout.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +59,8 @@ import { ChangeTokenPriceComponent } from './dialogs/change-token-price/change-t
     PlaySlotmachineGameComponent,
     ChangeExchangeFeeComponent,
     ManageGamesComponent,
-    ChangeTokenPriceComponent
+    ChangeTokenPriceComponent,
+    CashoutComponent
   ],
   imports: [
     BrowserModule,
@@ -65,14 +68,14 @@ import { ChangeTokenPriceComponent } from './dialogs/change-token-price/change-t
     HttpClientModule,
     MatInputModule, MatFormFieldModule, MatIconModule, MatCardModule, MatButtonModule, MatTabsModule,
     MatGridListModule, MatSelectModule, MatDividerModule, MatDialogModule, MatSnackBarModule, FormsModule,
-    MatTooltipModule
+    MatTooltipModule, MatListModule
   ],
   providers: [
     CasinoService, CasinoTokenService, AccountService, ContractService, SlotmachineService, GamblingHallService
   ],
   entryComponents: [
     ProduceTokensComponent, StockupEtherComponent, BuyComponent, InviteComponent, PlaySlotmachineGameComponent,
-    ChangeExchangeFeeComponent, ManageGamesComponent, ChangeTokenPriceComponent
+    ChangeExchangeFeeComponent, ManageGamesComponent, ChangeTokenPriceComponent, CashoutComponent
   ],
   bootstrap: [AppComponent]
 })

@@ -1,8 +1,12 @@
 .game-card {
-  height: 560px;
+  height: 745px;
   width: 500px;
-
 }
+
+.managers {
+  z-index: 2;
+}
+
 .game-card::after {
   content: "";
   background-image: url("../../../assets/slot-machine-159972_1280.png");

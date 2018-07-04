@@ -75,7 +75,7 @@ contract NewVegas is Casino {
 
             success = handleTokenCashout(_origin, _value);
 
-        } else if(keccak256(_data) == keccak256(token.TOKEN_TRANSFER_DATA_RECEPTION())) {
+        } else if(keccak256(_data) == keccak256(token.TOKEN_TRANSFER_DATA_REVENUE())) {
 
             success = handleTokenReception(_sender, _origin, _value);
 

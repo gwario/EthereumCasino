@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Cashout CasinoTokens for Ether</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <input matInput type="number" [min]="minTokens" placeholder="Tokens" [(ngModel)]="tokens" (change)="updateTokensBn()" />
+  </mat-form-field>
+  <p>Token Price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice.toString()).toFixed(3)}} €)</p>
+  <p>Exchange Fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee.toString()).toFixed(3)}} €)</p>
+  <p>Ether for tokens: {{euroPerWei.times(tokenPrice.muln(tokens).sub(exchangeFee).toString()).toFixed(3)}} €</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="tokensBN" cdkFocusInitial>Ok</button>
+</div>
+
+

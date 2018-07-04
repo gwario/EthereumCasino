@@ -21,26 +21,18 @@ contract Casino is RBAC, ERC223Receiver {
      */
 
     /**
-     * @dev Emitted when the casino receives tokens.
-     * @param _sender   the sender.
-     * @param _origin   the customer.
-     * @param _value    the value.
-     */
-    event RevenueReceived(address _sender, address _origin, uint _value);
-
-    /**
      * @dev Emitted when the owner transfers wei from the casino.
      * @param _owner    the owner.
      * @param _value    the value.
      */
-    event OwnerPaidOut(address _owner, uint _value);
+    event OwnerPaidOut(address indexed _owner, uint _value);
 
     /**
      * @dev Emitted when a customer transfers wei to the casino, i.e. he buys tokens.
      * @param _customer the customer.
      * @param _tokens   the number of tokens.
      */
-    event CustomerBoughtIn(address _customer, uint _tokens);
+    event CustomerBoughtIn(address indexed _customer, uint _tokens);
 
     /**
      * @dev Emitted when a customer claims his prize from the casino.
@@ -48,7 +40,7 @@ contract Casino is RBAC, ERC223Receiver {
      * @param _value    the value.
      * @param _game     the name of the game.
      */
-    event CustomerClaimed(address _customer, uint _value, bytes32 _game);
+    event CustomerClaimed(address indexed _customer, uint _value, bytes32 _game);
 
     /**
      * @dev Emitted when the casino opens.
@@ -82,13 +74,13 @@ contract Casino is RBAC, ERC223Receiver {
      * @dev Emitted when the casino's gambling hall changed.
      * @param _newGamblingHall  the new gambling hall.
      */
-    event GamblingHallChanged(address _newGamblingHall);
+    event GamblingHallChanged(address indexed _newGamblingHall);
 
     /**
      * @dev Emitted when the casino's token changed.
      * @param _newToken  the new token.
      */
-    event TokenChanged(address _newToken);
+    event TokenChanged(address indexed _newToken);
 
     /**
      * @dev Emitted when the casino's token price changed.
@@ -155,14 +147,14 @@ contract Casino is RBAC, ERC223Receiver {
      */
 
     /** @dev Requires the casino to be opened. */
-    //TEST:
+    //TEST: DONE
     modifier isOpened() {
         require(opened);
         _;
     }
 
     /** @dev Requires the casino to be closed. */
-    //TEST:
+    //TEST: DONE
     modifier isClosed() {
         require(!opened);
         _;
@@ -196,7 +188,7 @@ contract Casino is RBAC, ERC223Receiver {
     /**
      * @dev Opens the casino.
      */
-    //TEST:
+    //TEST: DONE
     function open() external isClosed hasToken onlyRole(ROLE_MANAGER) {
         opened = true;
 
@@ -206,7 +198,7 @@ contract Casino is RBAC, ERC223Receiver {
     /**
      * @dev Closes the casino.
      */
-    //TEST:
+    //TEST: DONE
     function close() external isOpened onlyRole(ROLE_MANAGER) {
         opened = false;
 
@@ -240,7 +232,7 @@ contract Casino is RBAC, ERC223Receiver {
     /**
      * @dev Payout to beneficiary.
      */
-    //TEST:
+    //TEST: DONE
     function payout() external isClosed onlyRole(ROLE_OWNER) {
         //TODO check if enough money remains to payout all customers.
 
@@ -256,7 +248,7 @@ contract Casino is RBAC, ERC223Receiver {
     /**
      * @dev Stock up the casinos wei balance, e.g. to be able to produce more tokens.
      *///TODO consider handling this in produce in the token and transferring
-    //TEST:
+    //TEST: DONE
     function stockup() external payable onlyRole(ROLE_OWNER) {
         require(msg.value > 0);
 
@@ -293,7 +285,7 @@ contract Casino is RBAC, ERC223Receiver {
         require(customerEtherForTokens <= address(this).balance);
 
         //transfer from the casino to the customer and minus fee
-        _customer.transfer(customerEtherForTokens.sub(exchangeFee));
+        _customer.transfer(customerEtherForTokens);
 
         emit TokenBalanceChanged(token.balanceOf(address(this)));
         emit EtherBalanceChanged(address(this).balance);
@@ -308,10 +300,10 @@ contract Casino is RBAC, ERC223Receiver {
      * @param _value the amount of tokens.
      * @return true on success, otherwise false.
      */
-    //TEST:
+    //TEST: DONE
     function handleTokenReception(address _sender, address _origin, uint256 _value) internal isOpened returns (bool success) {
 
-        emit RevenueReceived(_sender, _origin, _value);
+        emit TokenBalanceChanged(token.balanceOf(address(this)));
 
         success = true;
     }
@@ -327,7 +319,7 @@ contract Casino is RBAC, ERC223Receiver {
      * @param _data the supplied data.
      * @return true on success, otherwise false.
      */
-    //TEST:
+    //TEST: DONE
     function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success);
 
 
@@ -384,7 +376,7 @@ contract Casino is RBAC, ERC223Receiver {
      * @dev Sets a token price.
      * @param _tokenPrice the token price.
      */
-    //TEST:
+    //TEST: DONE
     function setTokenPrice(uint _tokenPrice) external isClosed onlyRole(ROLE_MANAGER) {
         require(_tokenPrice > 0);
 
@@ -410,7 +402,7 @@ contract Casino is RBAC, ERC223Receiver {
      * @dev Sets a token price.
      * @param _exchangeFee the token price.
      */
-    //TEST:
+    //TEST: DONE
     function setExchangeFee(uint _exchangeFee) external isClosed onlyRole(ROLE_MANAGER) {
         exchangeFee = _exchangeFee;
 

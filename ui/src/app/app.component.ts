@@ -158,7 +158,7 @@ export class AppComponent implements OnInit {
    * @param event
    * @returns {string} the message or null for silent events.
    */
-  private static getMessageForGamblingHall(event_name: string, event: any): string {
+  private getMessageForGamblingHall(event_name: string, event: any): string {
 
     const ARGS = event.returnValues;
 
@@ -167,9 +167,9 @@ export class AppComponent implements OnInit {
         console.info("CasinoChanged", event.event);
         return null;
       case "GameAdded":
-        return "The game (Type: "+ARGS._gameType+") "+ARGS._gameName+" ("+ARGS._newGame+") is now available!";
+        return "The game (Type: "+this.web3Service.hexToUtf8(ARGS._gameType)+") "+this.web3Service.hexToUtf8(ARGS._gameName)+" ("+ARGS._newGame+") is now available!";
       case "GameRemoved":
-        return "The game at "+ARGS._game+" is not available anymore!";
+        return "The game at "+this.web3Service.hexToUtf8(ARGS._game)+" is not available anymore!";
       default:
         console.warn("Unhandled event '"+event_name+"' from contract 'SimpleGamblingHall'!");
         return null;

@@ -30,12 +30,21 @@ contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20Basic("
      */
     event CustomerPaidOut(address indexed _owner, uint _value);
 
+    /**
+     * @dev Emitted when the casino receives tokens.
+     * @param _sender           the sender.
+     * @param _casinoAddress    the casino.
+     * @param _value            the value.
+     */
+    event RevenueReceived(address indexed _sender, address indexed _casinoAddress, uint _value);
+
+
     /*
      * Fields.
      */
     bytes public constant TOKEN_TRANSFER_DATA_PRODUCTION = "tokenProduction";
     bytes public constant TOKEN_TRANSFER_DATA_CASH_OUT = "tokenCashout";
-    bytes public constant TOKEN_TRANSFER_DATA_RECEPTION = new bytes(0);
+    bytes public constant TOKEN_TRANSFER_DATA_REVENUE = new bytes(0);
 
     /*
      * Business functions.
@@ -65,5 +74,15 @@ contract CasinoToken is Burnable223Token, Mintable223Token, DetailedERC20Basic("
         assert(transfer(_casinoAddress, _amount, TOKEN_TRANSFER_DATA_CASH_OUT));
 
         emit CustomerPaidOut(msg.sender, _amount);
+    }
+
+    //TEST: DONE
+    function sendRevenue(address _casinoAddress, uint256 _amount) public {
+        require(_casinoAddress != address(0));
+        require(_amount > 0);
+
+        assert(transfer(_casinoAddress, _amount, TOKEN_TRANSFER_DATA_REVENUE));
+
+        emit RevenueReceived(msg.sender, _casinoAddress, _amount);
     }
 }

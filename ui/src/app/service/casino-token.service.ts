@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import BigNumber from "bignumber.js";
 import {Web3Service} from "./web3.service";
 import {AddressTokensEther} from "../model/address-tokens-ether";
+import BN from "bn.js";
 
 declare let window: any;
 
@@ -18,7 +19,11 @@ export class CasinoTokenService {
   }
 
   produce(address: string, tokens: number, from: string): Promise<boolean> {
-    return this.web3Service.casinoTokenContract.methods.produce(address, tokens).call({from: from});
+    return this.web3Service.casinoTokenContract.methods.produce(address, tokens).send({from: from});
+  }
+
+  cashout(tokens: BN, from: string) {
+    return this.web3Service.casinoTokenContract.methods.cashout(this.web3Service.casinoContract.options.address, tokens).send({from: from});
   }
 
   getAddress(): string {
@@ -59,6 +64,7 @@ export class CasinoTokenService {
       this.getTokenBalance(address)
         .then(tokenBalance => {
           this.web3Service.getBalance(address).then(balance => {
+            tokensAndEther.address = address;
             tokensAndEther.tokenBalance = tokenBalance;
             tokensAndEther.etherBalance = new BigNumber(this.web3Service.fromWei(balance, 'wei'));
             return resolve(tokensAndEther);

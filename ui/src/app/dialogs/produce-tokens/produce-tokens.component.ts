@@ -22,15 +22,20 @@ export class ProduceTokensComponent implements OnInit {
               private contractService: ContractService,
               private accountService: AccountService) {
 
+    this.externalAccounts = new Set<string>();
+    this.accountRoles = new Map<string, Set<string>>();
     this.produceTokens = 200;
-    this.contractService.getContractAccounts().subscribe(value => this.contractAccounts = value);
+
+    this.contractService.getContractAccounts().subscribe(value => {
+      this.contractAccounts = value;
+    });
     this.accountService.getExternalAccounts().subscribe(value => {
-
-      this.externalAccounts = value;
-
-      this.externalAccounts.forEach(address =>
-        this.accountService.getRoles(address).then(roles =>
-          this.accountRoles.set(address, roles)))
+      value.forEach(address =>
+        this.accountService.getRoles(address).then(roles => {
+          this.accountRoles.set(address, roles);
+          this.externalAccounts.add(address);
+        })
+      );
     });
   }
 
@@ -42,9 +47,10 @@ export class ProduceTokensComponent implements OnInit {
   }
 
 
-  setToList(set: Set<string>): string[] {
+  setToList(address: string): string[] {
+
     const list: string[] = [];
-    set.forEach(value => list.push(value));
+    this.accountRoles.get(address).forEach(value => list.push(value));
     return list;
   }
 }

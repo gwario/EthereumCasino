@@ -6,7 +6,7 @@
   <mat-card-content>
     <app-balances [address]="address"></app-balances>
     <div class="field">Total Supply: <span class="value">{{totalSupply}}</span> {{symbol}}</div>
-    <mat-grid-list cols="3" rowHeight="fit">
+    <mat-grid-list cols="3" rowHeight="5:5">
       <mat-grid-tile><app-account [address]="ownerAddress"></app-account></mat-grid-tile>
     </mat-grid-list>
   </mat-card-content>

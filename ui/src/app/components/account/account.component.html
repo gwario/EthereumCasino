@@ -22,7 +22,7 @@
       <button mat-raised-button (click)="openBuyDialog()" [disabled]="!buyEnabled()">Buy</button>
     </span>
     <span matTooltip="{{cashoutDisabledTooltip()}}" [matTooltipDisabled]="cashoutEnabled()">
-      <button mat-raised-button (click)="cashout()" [disabled]="!cashoutEnabled()">Cashout</button>
+      <button mat-raised-button (click)="openCashoutDialog()" [disabled]="!cashoutEnabled()">Cashout</button>
     </span>
 
     <span matTooltip="{{closeCasinoDisabledTooltip()}}" [matTooltipDisabled]="closeCasinoEnabled()">
@@ -48,6 +48,10 @@
 
     <span matTooltip="{{playSlottmachineDisabledTooltip()}}" [matTooltipDisabled]="playSlottmachineEnabled()">
       <button mat-raised-button (click)="openPlaySlotmachineDialog()" [disabled]="!playSlottmachineEnabled()">Play Slotmachine</button>
+    </span>
+
+    <span matTooltip="{{manageGamesDisabledTooltip()}}" [matTooltipDisabled]="manageGamesEnabled()">
+      <button mat-raised-button (click)="openManageGamesDialog()" [disabled]="!manageGamesEnabled()">Manage Games</button>
     </span>
   </mat-card-actions>
 </mat-card>

@@ -10,7 +10,7 @@
       <mat-grid-tile><app-account [address]="ownerAddress"></app-account></mat-grid-tile>
       <mat-grid-tile><app-account [address]="managerAddress"></app-account></mat-grid-tile>
     </mat-grid-list>
-    <mat-grid-list class="games" cols="2" rowHeight="1:1">
+    <mat-grid-list class="games" cols="2" rowHeight="1:1.3">
       <mat-grid-tile *ngFor="let game of games">
         <app-slotmachine-1-0-game [name]="game.name" *ngIf="game.type == 'sm_1.0'"></app-slotmachine-1-0-game>
       </mat-grid-tile>

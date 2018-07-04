@@ -101,58 +101,6 @@ contract('Casino - CasinoToken', function (accounts) {
         assert.equal((await casinoToken.balanceOf(casino.address)).toNumber(), initalTokenBalance+PRODUCTION_AMOUNT.toNumber(), "Casino should own produced tokens.");
     });
 
-    //buy
-    it("SomeGuy buys tokens -> casino closed => should revert", async () => {
-        try {
-            await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).plus(1).toNumber()});
-            assert.notEqual((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 5, "Should not get all tokens!");
-        } catch(err) {
-            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
-        }
-    });
-    it("SomeGuy buys tokens -> not exact value for tokens => should revert", async () => {
-        await casino.open({from: CASINO_OWNER});
-        try {
-            await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).plus(1).toNumber()});
-            assert.notEqual((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 5, "Should not get all tokens!");
-        } catch(err) {
-            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
-        }
-    });
-    it("SomeGuy buys tokens -> no exchange fee => should revert", async () => {
-        await casino.open({from: CASINO_OWNER});
-        try {
-            await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(5).toNumber()});
-            assert.fail(null, null, "Should not be reached!");
-        } catch(err) {
-            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
-        }
-    });
-    it("SomeGuy buys tokens => should succeed", async () => {
-        await casino.open({from: CASINO_OWNER});
-
-        let initalBalance = web3.eth.getBalance(casino.address).toNumber();
-
-        let value = INITIAL_TOKEN_PRICE.times(5).plus(INITIAL_EXCHANGE_FEE).toNumber();
-        let result = await casino.buyTokens({from: SOME_GUY, value: value});
-        assert.web3Events(result, [
-            {
-                event: 'CustomerBoughtIn',
-                args: {
-                    _customer: SOME_GUY,
-                    _tokens: 5
-                }
-            },
-            {
-                event: 'EtherBalanceChanged',
-                args: {
-                    _newBalance: initalBalance+value,
-                }
-            },
-        ], 'Event(s) missing!');
-        assert.equal((await casinoToken.balanceOf(SOME_GUY)).toNumber(), 5, "Should have 5 tokens!");
-    });
-
     //cashout
     it("SomeGuy cashout tokens -> casino closed => should revert", async () => {
         await casino.open({from: CASINO_OWNER});
@@ -233,6 +181,59 @@ contract('Casino - CasinoToken', function (accounts) {
         //buy: casino -> guy
         //cashout: guy -> casino
         assert.equal((await casinoToken.balanceOf(casino.address)).toNumber(), initalTokenBalanceCasino, "Should have initial amount of tokens!");
+
+        //TODO look at ass0.2 and include gas in the calculations in order to make this work
+        // assert.equal(await web3.eth.getBalance(SOME_GUY).toNumber(), initalBalanceSomeGuy-INITIAL_EXCHANGE_FEE.times(2).toNumber(), "Should have same as before minus two times exchange fee!");
+        // assert.equal(await web3.eth.getBalance(casino.address).toNumber(), initalBalanceCasino+INITIAL_EXCHANGE_FEE.times(2).toNumber(), "Should have same as before plus two times exchange fee!");
+    });
+
+    //sendRevenue
+    it("SomeGuy send revenue -> casino closed => should revert", async () => {
+        const REVENUE = 5;
+        await casino.open({from: CASINO_OWNER});
+        await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(REVENUE).plus(INITIAL_EXCHANGE_FEE).toNumber()});
+        await casino.close({from: CASINO_OWNER});
+        try {
+            await casinoToken.sendRevenue(casino.address, REVENUE, {from: SOME_GUY});
+            assert.fail(null, null, "Should not be reached!");
+        } catch(err) {
+            assert.equal(err.message, "VM Exception while processing transaction: revert", "VM error expected");
+        }
+    });
+    it("SomeGuy send revenue => should succeed", async () => {
+        const REVENUE = 5;
+        await casino.open({from: CASINO_OWNER});
+        await casino.buyTokens({from: SOME_GUY, value: INITIAL_TOKEN_PRICE.times(REVENUE).plus(INITIAL_EXCHANGE_FEE).toNumber()});
+
+        let initalBalanceCasino = web3.eth.getBalance(casino.address).toNumber();
+        let initalTokenBalanceCasino = (await casinoToken.balanceOf(casino.address)).toNumber();
+        let initalBalanceSomeGuy = web3.eth.getBalance(SOME_GUY).toNumber();
+        let initalTokenBalanceSomeGuy = (await casinoToken.balanceOf(SOME_GUY)).toNumber();
+
+        let result = await casinoToken.sendRevenue(casino.address, REVENUE, {from: SOME_GUY});
+        assert.web3Events(result, [
+            {
+                event: 'Transfer',
+                args: {
+                    from: SOME_GUY,
+                    to: casino.address,
+                    value: REVENUE
+                }
+            },
+            {
+                event: 'RevenueReceived',
+                args: {
+                    _sender: SOME_GUY,
+                    _casinoAddress: casino.address,
+                    _value: REVENUE
+                }
+            },
+        ], 'Event(s) missing!');
+
+        assert.equal((await casinoToken.balanceOf(SOME_GUY)).toNumber(), initalTokenBalanceSomeGuy-REVENUE, "Should have initial amount minus revenue!");
+        //buy: casino -> guy
+        //cashout: guy -> casino
+        assert.equal((await casinoToken.balanceOf(casino.address)).toNumber(), initalTokenBalanceCasino+REVENUE, "Should have initial amount plus revenue!");
 
         //TODO look at ass0.2 and include gas in the calculations in order to make this work
         // assert.equal(await web3.eth.getBalance(SOME_GUY).toNumber(), initalBalanceSomeGuy-INITIAL_EXCHANGE_FEE.times(2).toNumber(), "Should have same as before minus two times exchange fee!");

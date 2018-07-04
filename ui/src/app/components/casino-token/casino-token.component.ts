@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CasinoTokenService} from "../../service/casino-token.service";
 import {OnAddressChange} from "../../on-address-change";
+import {Web3Service} from "../../service/web3.service";
 
 @Component({
   selector: 'app-casino-token',
@@ -17,7 +18,8 @@ export class CasinoTokenComponent implements OnInit, OnAddressChange {
   ownerAddress: string;
   totalSupply: string;
 
-  constructor(private casinoTokenService: CasinoTokenService) {
+  constructor(private casinoTokenService: CasinoTokenService,
+              private web3Service: Web3Service) {
 
     this.casinoTokenService.getName().then(value => {
       this.name = value;
@@ -40,6 +42,12 @@ export class CasinoTokenComponent implements OnInit, OnAddressChange {
   }
 
   onAddressChange(address: string) {
+    this.web3Service.casinoTokenContract.events.ProductionFinished()
+      .on('data', data =>
+        this.casinoTokenService.getTotalSupply()
+          .then(value => this.totalSupply = value)
+          .catch(reason => console.error(reason)))
+      .on('error', console.error);
   }
 
   @Input()

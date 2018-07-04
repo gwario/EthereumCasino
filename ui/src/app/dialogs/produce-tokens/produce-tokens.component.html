@@ -6,7 +6,7 @@
         {{ contractAccount.address.substring(0,6) }}... ({{contractAccount.name}})
       </mat-option>
       <mat-option *ngFor="let address of externalAccounts" [value]="address">
-        {{ address.substring(0,6) }}... ({{ setToList(accountRoles.get(address)) }})
+        {{ address.substring(0,6) }}... ({{setToList(address)}})
       </mat-option>
     </mat-select>
   </mat-form-field>
