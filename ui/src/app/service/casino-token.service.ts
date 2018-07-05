@@ -14,8 +14,8 @@ export class CasinoTokenService {
   constructor(private web3Service: Web3Service) {}
 
 
-  transfer(to: string, value: BigNumber, data: string, from: string): Promise<boolean> {
-    return this.web3Service.casinoTokenContract.methods['transfer(address,uint256,bytes)'](to, value.toNumber(), window.web3.utils.fromUtf8(data)).call({from: from});
+  transfer(to: string, value: BN, data: string, from: string): Promise<boolean> {
+    return this.web3Service.casinoTokenContract.methods['transfer(address,uint256,bytes)'](to, value, window.web3.utils.fromUtf8(data)).send({from: from});
   }
 
   produce(address: string, tokens: number, from: string): Promise<boolean> {

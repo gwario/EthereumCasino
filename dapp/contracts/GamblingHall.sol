@@ -89,7 +89,7 @@ contract GamblingHall is RBAC {
      */
 
     /** @dev requires the casino to be set. */
-    //TEST:
+    //TEST: DONE
     modifier hasCasino() {
         require(address(casino) != address(0));
         _;
@@ -113,7 +113,7 @@ contract GamblingHall is RBAC {
      * @param _gameName the name of the game. NOTE: name must be unique!
      * @param _gameAddress the address of the game.
      */
-    //TEST:
+    //TEST: DONE
     function addGame(bytes32 _gameName, address _gameAddress) external hasCasino onlyRole(ROLE_MANAGER) {
         require(!nameGameInfo[_gameName].isPresent);
 
@@ -137,7 +137,7 @@ contract GamblingHall is RBAC {
      * @dev Removes a game.
      * @param _name the name of the game to be removed.
      */
-    //TEST:
+    //TEST: DONE
     function removeGame(bytes32 _name) external onlyRole(ROLE_MANAGER) {
         require(nameGameInfo[_name].isPresent);
 
@@ -159,7 +159,7 @@ contract GamblingHall is RBAC {
     /**
      * @return all games.
      */
-    //TEST:
+    //TEST: DONE
     function getGameNames() external view returns (bytes32[]) {
         return gameNames;
     }
@@ -169,7 +169,7 @@ contract GamblingHall is RBAC {
      * @param _gameName The game's name, i.e. the key of the games mapping.
      * @return the address of the game.
      */
-    //TEST:
+    //TEST: DONE
     function getGameAddress(bytes32 _gameName) external view returns (address) {
         return nameGameInfo[_gameName].gameAddress;
     }
@@ -179,7 +179,7 @@ contract GamblingHall is RBAC {
      * @param _gameName The game's name, i.e. the key of the games mapping.
      * @return the type of the game.
      */
-    //TEST:
+    //TEST: DONE
     function getGameType(bytes32 _gameName) external view returns (bytes8) {
         return nameGameInfo[_gameName].gameType;
     }
@@ -193,7 +193,7 @@ contract GamblingHall is RBAC {
      * @dev sets an operating manager.
      * @param _manager the manager's address.
      */
-    //TEST:
+    //TEST: DONE
     function setManager(address _manager) external onlyRole(ROLE_OWNER) {
         require(_manager != address(0));
 
@@ -210,7 +210,7 @@ contract GamblingHall is RBAC {
      * @dev sets the casino.
      * @param _casinoAddress the casino address.
      */
-    //TEST:
+    //TEST: DONE
     function setCasino(address _casinoAddress) external onlyRole(ROLE_MANAGER) {
         require(_casinoAddress != address(0));
 

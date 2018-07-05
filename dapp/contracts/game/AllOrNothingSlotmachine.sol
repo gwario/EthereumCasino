@@ -121,7 +121,7 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
      * @param _customer The customer, i.e. the gambler.
      * @param _value the amount of tokens sent by the customer.
      */
-    function pullTheLever(address _customer, uint _value) internal isAvailable {
+    function pullTheLever(address _customer, uint _value) internal isAvailable isCasinoOpened {
         require(_value == price.add(deposit));
 
         uint guess = uint(_customer) % possibilities;
@@ -132,7 +132,7 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
         assert(gamblingHall.casino().token().transfer(
                 address(gamblingHall.casino()), //to
                 price,                          //value
-                name.toBytes())                 //the game's name
+                gamblingHall.casino().token().TOKEN_TRANSFER_DATA_REVENUE())//the game's name
         );
 
         emit Played(_customer);
@@ -150,7 +150,7 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
      * @dev If the guess was wrong, transfers the price to the casino and returns the deposit.
      * @param _customer The customer, i.e. the gambler.
      */
-    function claim(address _customer) internal isAvailable {
+    function claim(address _customer) internal isAvailable isCasinoOpened {
         //TODO make shure it is not done in this block... this should be the case anyway since offset > 0
 
         //throws already

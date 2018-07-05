@@ -175,20 +175,24 @@ export class AccountComponent implements OnInit, OnAddressChange {
     dialogRef.afterClosed().subscribe(result => {
       if(result) {
         console.debug("slotmachine: ", result);
-        if(result.pullTheLever)
+        if(result.pullTheLever) {
+
           this.slotmachineService.pullTheLever(this.address).then(success => {
             if(success)
               this.slotmachinePlaying = true;
             else
               console.warn("Slotmachine.pullTheLever failed");
-          });
-        else if(result.claim)
+          }).catch(console.error);
+
+        } else if(result.claim) {
+
           this.slotmachineService.claim(this.address).then(success => {
             if(success)
               this.slotmachinePlaying = false;
             else
               console.warn("Slotmachine.claim failed");
-          });
+          }).catch(console.error);
+        }
       } else {
         console.debug("slotmachine: cancel");
       }

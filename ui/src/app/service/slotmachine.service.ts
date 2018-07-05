@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import BigNumber from "bignumber.js";
 import {CasinoTokenService} from "./casino-token.service";
 import {Web3Service} from "./web3.service";
+import BN from "bn.js";
 
 declare let window: any;
 
@@ -41,16 +42,20 @@ export class SlotmachineService {
     return this.web3Service.allOrNothingSlotmachineContract.methods.prize().call();
   }
 
-  getPrice(): Promise<BigNumber> {
-    return this.web3Service.allOrNothingSlotmachineContract.methods.price().call();
+  getPrice(): Promise<BN> {
+    return new Promise<BN>(resolve =>
+      this.web3Service.allOrNothingSlotmachineContract.methods.price().call().then(value =>
+        resolve(new BN(value))));
   }
 
   setPrize(price: BigNumber, prize: BigNumber, from: string): void {
     this.web3Service.allOrNothingSlotmachineContract.methods.setPrice(price.toNumber(), prize.toNumber()).send({from: from});
   }
 
-  getDeposit(): Promise<BigNumber> {
-    return this.web3Service.allOrNothingSlotmachineContract.methods.deposit().call();
+  getDeposit(): Promise<BN> {
+    return new Promise<BN>(resolve =>
+      this.web3Service.allOrNothingSlotmachineContract.methods.deposit().call().then(value =>
+        resolve(new BN(value))));
   }
 
   setDeposit(deposit: BigNumber, from: string): void {
@@ -81,18 +86,30 @@ export class SlotmachineService {
     this.web3Service.allOrNothingSlotmachineContract.methods.release().send({from: from});
   }
 
-  private DATA_PULL_THE_LEVER: string = "pullTheLever";
-  private DATA_CLAIM: string = "claim";
+  DATA_PULL_THE_LEVER(): Promise<string> {
+    return this.web3Service.allOrNothingSlotmachineContract.methods.DATA_PULL_THE_LEVER().call();
+  }
+
+  DATA_CLAIM(): Promise<string> {
+    return this.web3Service.allOrNothingSlotmachineContract.methods.DATA_CLAIM().call();
+  }
 
   pullTheLever(from: string): Promise<boolean> {
     return this.getPrice().then(price => {
+      console.log(typeof price, price)
       return this.getDeposit().then(deposit => {
-        return this.casinoTokenService.transfer(this.getAddress(), price.plus(deposit), this.DATA_PULL_THE_LEVER, from);
+        console.log(typeof deposit, deposit)
+        return this.DATA_PULL_THE_LEVER().then(data => {
+          console.log("transferring tokens for pull the lever")
+          return this.casinoTokenService.transfer(this.getAddress(), price.add(deposit), data, from);
+        });
       });
     });
   }
 
   claim(from: string): Promise<boolean> {
-    return this.casinoTokenService.transfer(this.getAddress(), new BigNumber(0), this.DATA_CLAIM, from);
+    return this.DATA_CLAIM().then(data => {
+      return this.casinoTokenService.transfer(this.getAddress(), new BN(0), data, from);
+    });
   }
 }

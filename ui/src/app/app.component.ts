@@ -60,7 +60,7 @@ export class AppComponent implements OnInit {
               message = AppComponent.getMessageForCasino(EVENT, event.event);
               break;
             case "GamblingHall":
-              message = AppComponent.getMessageForGamblingHall(EVENT, event.event);
+              message = this.getMessageForGamblingHall(EVENT, event.event);
               break;
             case "AllOrNothingSlotmachine":
               message = AppComponent.getMessageForAllOrNothingSlotmachine(EVENT, event.event);
@@ -169,7 +169,7 @@ export class AppComponent implements OnInit {
       case "GameAdded":
         return "The game (Type: "+this.web3Service.hexToUtf8(ARGS._gameType)+") "+this.web3Service.hexToUtf8(ARGS._gameName)+" ("+ARGS._newGame+") is now available!";
       case "GameRemoved":
-        return "The game at "+this.web3Service.hexToUtf8(ARGS._game)+" is not available anymore!";
+        return "The game at "+ARGS._game+" is not available anymore!";
       default:
         console.warn("Unhandled event '"+event_name+"' from contract 'SimpleGamblingHall'!");
         return null;

@@ -96,16 +96,24 @@ contract Game is RBAC {
      * Modifiers.
      */
 
-    /** @dev requires the game to be available and the casino to be opened. */
-    //TEST:
-    modifier isAvailable() {
-        require(gamblingHall.casino().opened() && available);
+    /** @dev requires the game to have a gambling hall with a casino which is opened. */
+    //TEST: DONE
+    modifier isCasinoOpened() {
+//        require(address(gamblingHall) != address(0));
+//        require(address(gamblingHall.casino()) != address(0));
+        require(gamblingHall.casino().opened());
         _;
     }
-    /** @dev requires the game not to be available or the casino to be closed. */
-    //TEST:
+    /** @dev requires the game to be available. */
+    //TEST: DONE
+    modifier isAvailable() {
+        require(available);
+        _;
+    }
+    /** @dev requires the game not to be available. */
+    //TEST: DONE
     modifier isNotAvailable() {
-        require(!gamblingHall.casino().opened() || !available);
+        require(!available);
         _;
     }
     /** @dev requires the sender to be the gambling hall. */
@@ -122,7 +130,7 @@ contract Game is RBAC {
     /**
      * @dev makes this game available to the public.
      */
-    //TEST:
+    //TEST: DONE
     function release() external isNotAvailable onlyRole(ROLE_SUPERVISER) {
         available = true;
 
@@ -132,7 +140,7 @@ contract Game is RBAC {
     /**
      * @dev makes this game unavailable to the public.
      */
-    //TEST:
+    //TEST: DONE
     function hold() external isAvailable onlyRole(ROLE_SUPERVISER) {
         available = false;
 
@@ -148,7 +156,7 @@ contract Game is RBAC {
      * @dev Sets a new gambling hall.
      * @param _gamblingHallAddress the address of a gambling hall.
      */
-    //TEST:
+    //TEST: DONE
     function setGamblingHall(address _gamblingHallAddress) external isNotAvailable onlyRole(ROLE_SUPERVISER) {
         require(_gamblingHallAddress != address(0));
 
@@ -161,7 +169,7 @@ contract Game is RBAC {
      * @dev Sets a name of the game. This is set when adding the game to the gambling hall.
      * @param _name the name of the game.
      */
-    //TEST:
+    //TEST: DONE
     function setName(bytes32 _name) external isNotAvailable isGamblingHall {
         name = _name;
     }

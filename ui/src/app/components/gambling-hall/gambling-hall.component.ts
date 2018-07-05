@@ -62,6 +62,33 @@ export class GamblingHallComponent implements OnInit, OnAddressChange {
   }
 
   onAddressChange(address: string) {
+
+    this.web3Service.gamblingHallContract.events.GameAdded()
+      .on("data", event => {
+        let gameName = event.returnValues._gameName;
+        let gameAddress  = event.returnValues._newGame;
+        this.gamblingHallService.getGameType(gameName).then(gameType => {
+
+          let game = new Game();
+
+          game.address = gameAddress;
+          game.name = this.web3Service.hexToUtf8(gameName);
+          game.type = this.web3Service.hexToUtf8(gameType);
+
+          this.games.push(game);
+
+          console.log("this.games", this.games)
+        });
+      })
+      .on("error", console.error);
+
+    this.web3Service.gamblingHallContract.events.GameRemoved()
+      .on("data", event => {
+        let address = event.returnValues._game;
+        let gameIndex = this.games.findIndex(game => game.address == address);
+        this.games = this.games.splice(gameIndex, 1);
+      })
+      .on("error", console.error);
   }
 
   @Input()

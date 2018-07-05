@@ -27,13 +27,7 @@ export class ManageGamesComponent implements OnInit {
 
       gameNames.forEach(gameName => {
 
-        this.games.set(gameName, new Game());
-
-        this.games.get(gameName).name = gameName;
-
-        this.gamblingHallService.getGameAddress(gameName).then(address => {
-          this.games.get(gameName).address = address;
-        });
+        this.addToGames(gameName);
       });
     });
   }
@@ -47,13 +41,17 @@ export class ManageGamesComponent implements OnInit {
 
   addGame() {
     if(this.address && this.name) {
-      this.gamblingHallService.addGame(this.name, this.address, this.data.address);
+      this.gamblingHallService.addGame(this.name, this.address, this.data.address).then(value => {
+        this.addToGames(this.web3Service.utf8ToHex(this.name));
+        this.name = "";
+        this.address = "";
+      });
     }
   }
 
   removeGame(name: string) {
     if(name) {
-      this.gamblingHallService.removeGame(name, this.data.address);
+      this.gamblingHallService.removeGame(name, this.data.address).then(value => this.games.delete(name));
     }
   }
 
@@ -62,7 +60,17 @@ export class ManageGamesComponent implements OnInit {
   }
 
   hexToUtf8(hex: string): string {
-
     return this.web3Service.hexToUtf8(hex);
+  }
+
+  private addToGames(gameName: string) {
+
+    this.games.set(gameName, new Game());
+
+    this.games.get(gameName).name = gameName;
+
+    this.gamblingHallService.getGameAddress(gameName).then(address => {
+      this.games.get(gameName).address = address;
+    });
   }
 }

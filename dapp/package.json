@@ -11,7 +11,9 @@
     "openzeppelin-solidity": "1.10.0",
     "truffle-test-utils": "^0.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "solidity-coverage": "^0.5.5"
+  },
   "scripts": {
     "test": ""
   },

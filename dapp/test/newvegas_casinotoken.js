@@ -7,7 +7,7 @@ const SimpleGamblingHall = artifacts.require("./SimpleGamblingHall.sol");
 const NewVegas = artifacts.require("./NewVegas.sol");
 const AllOrNothingSlotmachine = artifacts.require("./game/AllOrNothingSlotmachine.sol");
 
-contract('Casino - CasinoToken', function (accounts) {
+contract('NewVegas - CasinoToken', function (accounts) {
 
     const TOKEN_OWNER = accounts[0];
     const GAMBLING_HALL_OWNER = accounts[1];

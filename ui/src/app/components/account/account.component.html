@@ -7,7 +7,7 @@
   <mat-card-content>
     <app-balances [address]="address"></app-balances>
   </mat-card-content>
-  <mat-card-actions>
+  <mat-card-actions align="start">
     <span matTooltip="{{payoutDisabledTooltip()}}" [matTooltipDisabled]="payoutEnabled()">
       <button mat-raised-button (click)="payout()" [disabled]="!payoutEnabled()">Payout</button>
     </span>
