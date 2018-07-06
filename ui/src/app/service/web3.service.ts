@@ -1,12 +1,13 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {environment} from "../../environments/environment";
-import Web3 from "web3";
-import {Contract, WebsocketProvider} from "web3/types";
-import BN from "bn.js";
 import BigNumber from "bignumber.js";
+import {WebsocketProvider} from "web3/providers";
+import Contract from "web3/eth/contract";
 
 declare let require: any;
 declare let window: any;
+
+const Web3 = require("web3");
 
 const casinoTokenAbi  = require('../../../../dapp/build/contracts/CasinoToken.json');
 const casinoAbi       = require('../../../../dapp/build/contracts/NewVegas.json');
@@ -63,18 +64,18 @@ export class Web3Service {
     }
   }
 
-  public getBalance(address: string): Promise<BN> {
-    return new Promise<BN>((resolve) => {
-      return window.web3.eth.getBalance(address).then(value => resolve(new BN(value)));
+  public getBalance(address: string): Promise<BigNumber> {
+    return new Promise<BigNumber>((resolve) => {
+      return window.web3.eth.getBalance(address).then(value => resolve(new BigNumber(value)));
     });
   }
 
-  public fromWei(balance: string | number | BN, unit: string): BigNumber {
-    return new BigNumber(window.web3.utils.fromWei(balance, unit));
+  public fromWei(balance: string | number | BigNumber, unit: string): BigNumber {
+    return new BigNumber(window.web3.utils.fromWei(balance.toString(), unit));
   }
 
-  public toWei(balance: string | number | BigNumber | BN, unit: string): BN {
-    return new BN(window.web3.utils.toWei(balance.toString(), unit).toString());
+  public toWei(balance: string | number | BigNumber, unit: string): BigNumber {
+    return new BigNumber(window.web3.utils.toWei(balance.toString(), unit).toString());
   }
 
   public hexToUtf8(hex: string): string {
@@ -87,6 +88,10 @@ export class Web3Service {
 
   public utf8ToHex(string: string): string {
     return window.web3.utils.fromUtf8(string);
+  }
+
+  toBN(number: BigNumber | string): any {
+    return window.web3.utils.toBN(number);
   }
 
   get events(): EventEmitter<any> {

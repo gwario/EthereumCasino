@@ -22,7 +22,6 @@ export class AccountService {
               private casinoTokenService: CasinoTokenService,
               private gamblingHallService: GamblingHallService,
               private slotmachineService: SlotmachineService) {
-
     this._accountAddresses = new Set();
     this._accounts = new BehaviorSubject<Set<string>>(this._accountAddresses);
 
@@ -67,7 +66,7 @@ export class AccountService {
   public getRoles(address: string): Promise<Set<string>> {
 
     const roles = new Set();
-
+    // console.log("getRoles("+address+")")
     return new Promise<Set<string>>((resolve, reject) => {
       //TODO collect this kind of info from events!
       return this.casinoTokenService.getOwnerAddress().then(casinoTokenOwnerAddress => {

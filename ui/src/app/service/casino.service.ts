@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Web3Service} from "./web3.service";
-import BN from "bn.js";
+import BigNumber from "bignumber.js";
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +10,13 @@ export class CasinoService {
   constructor(private web3Service: Web3Service) {}
 
   //////////////////////////
-  buyTokens(value: BN, from: string) {
+  buyTokens(value: BigNumber, from: string) {
 
     console.log("buy", "value: ",value, "from: "+from);
 
     return this.web3Service.casinoContract.methods.buyTokens().send({
       from: from,
-      value: value.toString()
+      value: value.toNumber()
     });
   }
   ///////////////////////
@@ -40,13 +40,13 @@ export class CasinoService {
 
     return this.web3Service.casinoContract.methods.payout().send({from: from});
   }
-  stockup(valueEther: BN, from: string) {
+  stockup(value: BigNumber, from: string) {
 
-    console.log("stockup", "valueEther: "+valueEther, "from: "+from);
+    console.log("stockup", "valueEther: "+value, "from: "+from);
 
     return this.web3Service.casinoContract.methods.stockup().send({
       from: from,
-      value: valueEther.toString()
+      value: value.toString()
     });
   }
   ///////////////////////////////
@@ -71,21 +71,23 @@ export class CasinoService {
   }
 
   ///////////////////////////////
-  getTokenPrice(): Promise<BN> {
-    return new Promise<BN>(resolve =>
-      this.web3Service.casinoContract.methods.tokenPrice().call().then(value =>
-        resolve(new BN(value))));
+  getTokenPrice(): Promise<BigNumber> {
+    return new Promise<BigNumber>(resolve =>
+      this.web3Service.casinoContract.methods.tokenPrice().call().then(value => {
+        return resolve(new BigNumber(value));
+      })
+    );
   }
-  setTokenPrice(newTokenPrice: BN, from: string) {
-    return this.web3Service.casinoContract.methods.setTokenPrice(newTokenPrice).send({from: from});
+  setTokenPrice(newTokenPrice: BigNumber, from: string) {
+    return this.web3Service.casinoContract.methods.setTokenPrice(this.web3Service.toBN(newTokenPrice)).send({from: from});
   }
   ///////////////////////////////
-  getExchangeFee(): Promise<BN> {
-    return new Promise<BN>(resolve =>
+  getExchangeFee(): Promise<BigNumber> {
+    return new Promise<BigNumber>(resolve =>
       this.web3Service.casinoContract.methods.exchangeFee().call().then(value =>
-        resolve(new BN(value))));
+        resolve(new BigNumber(value))));
   }
-  setExchangeFee(newExchangeFee: BN, from: string) {
-    return this.web3Service.casinoContract.methods.setExchangeFee(newExchangeFee).send({from: from});
+  setExchangeFee(newExchangeFee: BigNumber, from: string) {
+    return this.web3Service.casinoContract.methods.setExchangeFee(this.web3Service.toBN(newExchangeFee)).send({from: from});
   }
 }

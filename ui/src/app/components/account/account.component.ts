@@ -14,7 +14,6 @@ import {ContractService} from "../../service/contract.service";
 import {ChangeExchangeFeeComponent} from "../../dialogs/change-exchange-fee/change-exchange-fee.component";
 import {Web3Service} from "../../service/web3.service";
 import {OnAddressChange} from "../../on-address-change";
-import BN from "bn.js";
 import {ChangeTokenPriceComponent} from "../../dialogs/change-token-price/change-token-price.component";
 import {CashoutComponent} from "../../dialogs/cashout/cashout.component";
 import {ManageGamesComponent} from "../../dialogs/manage-games/manage-games.component";
@@ -112,6 +111,14 @@ export class AccountComponent implements OnInit, OnAddressChange {
         console.log("event: ", data);
         this.casinoOpened = false;
       }).on('error', console.error);
+
+    //slotmachine available
+    this.web3Service.allOrNothingSlotmachineContract.events.Hold()
+      .on('data', data => this.slotmachineAvailable = false)
+      .on('error', console.error);
+    this.web3Service.allOrNothingSlotmachineContract.events.Released()
+      .on('data', data => this.slotmachineAvailable = true)
+      .on('error', console.error);
   }
 
   removeAccount(): void {
@@ -139,7 +146,7 @@ export class AccountComponent implements OnInit, OnAddressChange {
 
         this.casinoService.getExchangeFee().then(exchangeFee => {
           this.casinoService.getTokenPrice().then(tokenPrice => {
-            let value = tokens.mul(tokenPrice).add(exchangeFee);
+            let value = tokens.times(tokenPrice).plus(exchangeFee);
             this.casinoService.buyTokens(value, this.address);
           });
         });
@@ -204,8 +211,8 @@ export class AccountComponent implements OnInit, OnAddressChange {
     dialogRef.afterClosed().subscribe(stockupWei => {
       if(stockupWei) {
         console.debug("stockup: ", stockupWei);
+        this.casinoService.stockup(stockupWei.toString(), this.address);
 
-        this.casinoService.stockup(new BN(stockupWei), this.address);
       } else {
         console.debug("stockup: cancel");
       }

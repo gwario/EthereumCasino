@@ -86,28 +86,34 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
     /*
      * Business functions.
      */
-
+    event TokenFallback(address _sender, address _origin, uint _value, bytes _data, address msgsender, address tokenaddress);
     /**
-     * Handles the customer actions along with the transfer.
+     * @dev Handles the customer actions along with the transfer.
+     * @dev msg.sender should be the token contact
+     * @dev _sender is the customer/player
+     * @dev _origin is the customer/player
      */
     function tokenFallback(address _sender, address _origin, uint256 _value, bytes _data) public returns (bool success) {
-        require(msg.sender == address(gamblingHall.casino().token()));
+        require(msg.sender == address(gamblingHall.casino().token())); //DONE?
+//        emit TokenFallback(_sender, _origin, _value, _data, msg.sender, address(gamblingHall.casino().token()));
         //the only allowed caller is the token contract.
 
-        if(keccak256(_data) == keccak256(DATA_PULL_THE_LEVER)) {
+        if(keccak256(_data) == keccak256(DATA_PULL_THE_LEVER)) { //DONE
 
             pullTheLever(_origin, _value);
 
         } else if(keccak256(_data) == keccak256(DATA_CLAIM)) {
 
-            require(_value == 0);
+            claim(_origin, _value);
 
-            claim(_origin);
+        } else {
+
+            revert("Unexpected interaction!"); //not the reason
         }
 
-        success = true;
+        success = true; //DONE
 
-        emit Interaction(_origin, _data);
+        emit Interaction(_origin, _data); //DONE
     }
 
 
@@ -116,20 +122,23 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
      */
     bytes constant public DATA_PULL_THE_LEVER = "pullTheLever";
 
+//    event SetTarget(uint guess, uint currentblock, uint targetblock); TEST
+//    event ValueCheck(uint _value, uint price, uint deposit, uint sum); TEST
     /**
      * @dev Makes a guess for the Pulls the lever of the slot machine.
      * @param _customer The customer, i.e. the gambler.
      * @param _value the amount of tokens sent by the customer.
      */
     function pullTheLever(address _customer, uint _value) internal isAvailable isCasinoOpened {
-        require(_value == price.add(deposit));
+//        emit ValueCheck(_value, price, deposit, price.add(deposit));
+        require(_value == price.add(deposit)); //DONE
+        uint guess = uint(_customer) % possibilities; //DONE
 
-        uint guess = uint(_customer) % possibilities;
-
-        setTarget(guess, block.number.add(targetBlockOffset));
+//        emit SetTarget(guess, block.number, block.number.add(targetBlockOffset)); //DONE
+        setTarget(guess, block.number.add(targetBlockOffset)); //throws
 
         //transfer price to the casino
-        assert(gamblingHall.casino().token().transfer(
+        assert(gamblingHall.casino().token().transfer( //throws ?
                 address(gamblingHall.casino()), //to
                 price,                          //value
                 gamblingHall.casino().token().TOKEN_TRANSFER_DATA_REVENUE())//the game's name
@@ -149,9 +158,10 @@ contract AllOrNothingSlotmachine is Game, SinglePlayerRandomness, ERC223Receiver
      * @dev If the guess was correct, transfers the prize and the deposit to the customer.
      * @dev If the guess was wrong, transfers the price to the casino and returns the deposit.
      * @param _customer The customer, i.e. the gambler.
+     * @param _value the amount of tokens sent by the customer. Has to be 0!
      */
-    function claim(address _customer) internal isAvailable isCasinoOpened {
-        //TODO make shure it is not done in this block... this should be the case anyway since offset > 0
+    function claim(address _customer, uint _value) internal isAvailable isCasinoOpened {
+        require(_value == 0);
 
         //throws already
         bool guessCorrect = guessedRight(possibilities);

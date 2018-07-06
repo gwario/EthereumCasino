@@ -95,7 +95,25 @@ export class BalancesComponent implements OnInit, OnAddressChange {
       })
       .on('error', console.error);
 
-    this.web3Service.casinoTokenContract.events.CustomerPaidOut({ filter: {_owner: this.address}})
+    // this.web3Service.casinoTokenContract.events.CustomerPaidOut({ filter: {_owner: this.address}})
+    //   .on('data', data => {
+    //     this.web3Service.getBalance(this.address).then(value =>
+    //       this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));
+    //     this.casinoTokenService.getTokenBalance(this.address).then(value =>
+    //       this.tokenBalance = value);
+    //   })
+    //   .on('error', console.error);
+
+    this.web3Service.casinoTokenContract.events.Transfer({ filter: {from: this.address}})
+      .on('data', data => {
+        this.web3Service.getBalance(this.address).then(value =>
+          this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));
+        this.casinoTokenService.getTokenBalance(this.address).then(value =>
+          this.tokenBalance = value);
+      })
+      .on('error', console.error);
+
+    this.web3Service.casinoTokenContract.events.Transfer({ filter: {to: this.address}})
       .on('data', data => {
         this.web3Service.getBalance(this.address).then(value =>
           this.etherBalance = new BigNumber(this.web3Service.fromWei(value, 'ether')));

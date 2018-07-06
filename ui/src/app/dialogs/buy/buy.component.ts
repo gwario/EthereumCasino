@@ -3,7 +3,6 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 import {CasinoService} from "../../service/casino.service";
 import BigNumber from "bignumber.js";
 import {Web3Service} from "../../service/web3.service";
-import BN from "bn.js";
 import {PriceService} from "../../service/price.service";
 
 @Component({
@@ -14,9 +13,9 @@ import {PriceService} from "../../service/price.service";
 export class BuyComponent implements OnInit {
 
   tokens: number;
-  tokensBN: BN;
-  exchangeFee: BN;
-  tokenPrice: BN;
+  tokensBN: BigNumber;
+  exchangeFee: BigNumber;
+  tokenPrice: BigNumber;
   euroPerWei: BigNumber;
 
   constructor(public dialogRef: MatDialogRef<BuyComponent>,
@@ -25,10 +24,10 @@ export class BuyComponent implements OnInit {
               private web3Service: Web3Service,
               private priceService: PriceService) {
 
-    this.exchangeFee = new BN(0);
-    this.tokenPrice = new BN(0);
+    this.exchangeFee = new BigNumber(0);
+    this.tokenPrice = new BigNumber(0);
     this.tokens = 50;
-    this.tokensBN = new BN(this.tokens);
+    this.tokensBN = new BigNumber(this.tokens);
     this.euroPerWei = new BigNumber(0);
 
     this.casinoService.getExchangeFee()
@@ -42,7 +41,7 @@ export class BuyComponent implements OnInit {
 
 
   updateTokensBn() {
-    this.tokensBN = new BN(this.tokens);
+    this.tokensBN = new BigNumber(this.tokens);
   }
 
   ngOnInit() {
@@ -53,12 +52,12 @@ export class BuyComponent implements OnInit {
   }
 
   tokenPriceEther() {
-    return this.web3Service.fromWei(this.tokenPrice.toString(), 'ether');
+    return this.web3Service.fromWei(this.tokenPrice, 'ether');
   }
   exchangeFeeEther() {
-    return this.web3Service.fromWei(this.exchangeFee.toString(), 'ether');
+    return this.web3Service.fromWei(this.exchangeFee, 'ether');
   }
   tokensPriceEuro() {
-    return this.euroPerWei.times(this.tokenPrice.muln(this.tokens).add(this.exchangeFee).toString()).toFixed(3);
+    return this.euroPerWei.times(this.tokenPrice.times(this.tokens).plus(this.exchangeFee)).toFixed(3);
   }
 }

@@ -3,9 +3,9 @@
   <mat-form-field>
     <input matInput type="number" placeholder="Tokens" [(ngModel)]="tokens" (change)="updateTokensBn()" />
   </mat-form-field>
-  <p>Token Price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice.toString()).toFixed(3)}} €)</p>
-  <p>Exchange Fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee.toString()).toFixed(3)}} €)</p>
-  <p>Tokens: {{euroPerWei.times(tokenPrice.muln(tokens).add(exchangeFee).toString()).toFixed(3)}} €</p>
+  <p>Token Price: {{tokenPriceEther()}} Ξ ({{euroPerWei.times(tokenPrice).toFixed(3)}} €)</p>
+  <p>Exchange Fee: {{exchangeFeeEther()}} Ξ ({{euroPerWei.times(exchangeFee).toFixed(3)}} €)</p>
+  <p>Tokens: {{euroPerWei.times(tokenPrice.times(tokens).plus(exchangeFee)).toFixed(3)}} €</p>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onCancelClick()">Cancel</button>

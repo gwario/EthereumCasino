@@ -64,6 +64,13 @@ export class Slotmachine10GameComponent implements OnInit, OnNameChange {
     }
 
     this.gamblingHallService.getGameType(this.name).then(type => this.type = this.web3Service.hexToUtf8(type));
+
+    this.web3Service.allOrNothingSlotmachineContract.events.Hold()
+      .on('data', data => this.available = false)
+      .on('error', console.error);
+    this.web3Service.allOrNothingSlotmachineContract.events.Released()
+      .on('data', data => this.available = true)
+      .on('error', console.error);
   }
 
   @Input()

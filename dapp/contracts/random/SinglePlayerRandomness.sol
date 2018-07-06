@@ -42,10 +42,10 @@ contract SinglePlayerRandomness {
      * Fields.
      */
     /** @dev The block in the future, from which hash is returned. */
-    mapping(address => uint) internal playerTargetBlock;
+    mapping(address => uint) public playerTargetBlock;
 
     /** @dev The player's guess. */
-    mapping(address => uint) internal playerGuess;
+    mapping(address => uint) public playerGuess;
 
 
     constructor() internal {}
@@ -54,21 +54,24 @@ contract SinglePlayerRandomness {
     /*
      * Business functions.
      */
-
+//    event TxOrigin(address origin); TEST
     /**
      * @dev Sets the guess and the target block for the (player) external account.
-     * @dev Uses tx.origin.
+     * @dev Uses tx.origin, the player's address.
      * @param _guess the guess.
      * @param _targetBlock the target block.
      */
     //TEST:
     function setTarget(uint _guess, uint _targetBlock) internal {
-        require(block.number < _targetBlock);
+        require(block.number < _targetBlock); // DONE
+//        require(playerTargetBlock[tx.origin] == 0 && playerGuess[tx.origin] == 0); // to force player to claim after pull
+        require(playerTargetBlock[tx.origin] == 0); // only target block since the random number can easily be 0
+//        emit TxOrigin(tx.origin);
 
-        playerTargetBlock[tx.origin] = _targetBlock;
-        playerGuess[tx.origin] = _guess;
+        playerTargetBlock[tx.origin] = _targetBlock; // DONE
+        playerGuess[tx.origin] = _guess; // DONE
 
-        emit GuessMade(tx.origin, _guess, block.number, _targetBlock);
+        emit GuessMade(tx.origin, _guess, block.number, _targetBlock); // DONE
     }
 
     /**
@@ -84,8 +87,6 @@ contract SinglePlayerRandomness {
 
         randomNumber = uint(blockhash(targetBlock)) % _max;
 
-        delete targetBlock;
-
         emit NewRandomNumber(randomNumber, _max);
     }
 
@@ -97,6 +98,9 @@ contract SinglePlayerRandomness {
     function guessedRight(uint _possibilities) internal returns (bool hasGuessedRight) {
 
         hasGuessedRight = uint(playerGuess[tx.origin]) == getRandomNumber(_possibilities);
+
+        delete playerTargetBlock[tx.origin];
+        delete playerGuess[tx.origin];
 
         emit GuessedRight(tx.origin, _possibilities);
     }

@@ -7,10 +7,10 @@
   <button mat-button (click)="onCancelClick()">Cancel</button>
   <button mat-raised-button color="primary"
           [mat-dialog-close]="{ claim: true }"
-
+          *ngIf="data.slotmachinePlaying"
           cdkFocusInitial>Claim Prize!</button>
   <button mat-raised-button color="primary"
           [mat-dialog-close]="{ pullTheLever: true }"
-
+          *ngIf="!data.slotmachinePlaying"
           cdkFocusInitial>Pull the Lever!</button>
 </div>

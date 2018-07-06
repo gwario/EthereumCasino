@@ -4,7 +4,6 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 import {CasinoService} from "../../service/casino.service";
 import {Web3Service} from "../../service/web3.service";
 import {PriceService} from "../../service/price.service";
-import BN from "bn.js";
 
 @Component({
   selector: 'app-change-exchange-fee',
@@ -13,9 +12,9 @@ import BN from "bn.js";
 })
 export class ChangeExchangeFeeComponent implements OnInit {
 
-  currentExchangeFee: BN;
-  tokenPrice: BN;
-  exchangeFee: BN;
+  currentExchangeFee: BigNumber;
+  tokenPrice: BigNumber;
+  exchangeFee: BigNumber;
   euroPerWei: BigNumber;
 
   constructor(public dialogRef: MatDialogRef<ChangeExchangeFeeComponent>,
@@ -25,9 +24,9 @@ export class ChangeExchangeFeeComponent implements OnInit {
               private priceService: PriceService) {
 
 
-    this.currentExchangeFee = new BN(0);
-    this.tokenPrice = new BN(0);
-    this.exchangeFee = new BN(0);
+    this.currentExchangeFee = new BigNumber(0);
+    this.tokenPrice = new BigNumber(0);
+    this.exchangeFee = new BigNumber(0);
     this.euroPerWei = new BigNumber(0);
 
     this.casinoService.getExchangeFee()
@@ -50,12 +49,12 @@ export class ChangeExchangeFeeComponent implements OnInit {
   }
 
   currentExchangeFeeEther() {
-    return this.web3Service.fromWei(this.currentExchangeFee.toString(), 'ether');
+    return this.web3Service.fromWei(this.currentExchangeFee, 'ether');
   }
   tokenPriceEther() {
-    return this.web3Service.fromWei(this.tokenPrice.toString(), 'ether');
+    return this.web3Service.fromWei(this.tokenPrice, 'ether');
   }
   exchangeFeeEther() {
-    return this.web3Service.fromWei(this.exchangeFee.toString(), 'ether');
+    return this.web3Service.fromWei(this.exchangeFee, 'ether');
   }
 }

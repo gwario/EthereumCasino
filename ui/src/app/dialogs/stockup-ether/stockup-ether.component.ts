@@ -3,7 +3,6 @@ import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
 import BigNumber from "bignumber.js";
 import {Web3Service} from "../../service/web3.service";
 import {PriceService} from "../../service/price.service";
-import BN from "bn.js";
 import {CasinoService} from "../../service/casino.service";
 import {CasinoTokenService} from "../../service/casino-token.service";
 
@@ -15,9 +14,9 @@ import {CasinoTokenService} from "../../service/casino-token.service";
 export class StockupEtherComponent implements OnInit {
 
   stockupWei: number;
-  stockupWeiBN: BN;
-  exchangeFee: BN;
-  tokenPrice: BN;
+  stockupWeiBN: BigNumber;
+  exchangeFee: BigNumber;
+  tokenPrice: BigNumber;
   stockupTokens: BigNumber;
   euroPerWei: BigNumber;
   symbol: string;
@@ -32,8 +31,8 @@ export class StockupEtherComponent implements OnInit {
               private priceService: PriceService) {
 
     this.stockupWei = 0;
-    this.stockupWeiBN = new BN(0);
-    this.tokenPrice = new BN(0);
+    this.stockupWeiBN = new BigNumber(0);
+    this.tokenPrice = new BigNumber(0);
     this.stockupTokens = new BigNumber(0);
     this.euroPerWei = new BigNumber(0);
 
@@ -43,7 +42,7 @@ export class StockupEtherComponent implements OnInit {
     this.casinoService.getTokenPrice()
       .then(value => {
         this.tokenPrice = value;
-        this.stockupWei = new BigNumber(50).times(this.tokenPrice.toString()).toNumber();//suggest ether for 500 tokens
+        this.stockupWei = new BigNumber(50).times(this.tokenPrice).toNumber();//suggest ether for 500 tokens
         this.updateStockup();
       });
 
@@ -54,7 +53,7 @@ export class StockupEtherComponent implements OnInit {
   }
 
   updateStockup() {
-    this.stockupTokens = new BigNumber(this.stockupWei.toString()).dividedBy(this.tokenPrice.toString());
+    this.stockupTokens = new BigNumber(this.stockupWei).dividedBy(this.tokenPrice);
     console.log(this.stockupWei)
     // console.log(new BN(this.stockupWei)) // putting it into a BN does not work
     // this.stockupWeiBN = new BN(this.stockupWei);
@@ -65,9 +64,9 @@ export class StockupEtherComponent implements OnInit {
   }
 
   stockupEther() {
-    return this.web3Service.fromWei(this.stockupWei.toString(), 'ether');
+    return this.web3Service.fromWei(this.stockupWei, 'ether');
   }
   tokenPriceEther() {
-    return this.web3Service.fromWei(this.tokenPrice.toString(), 'ether');
+    return this.web3Service.fromWei(this.tokenPrice, 'ether');
   }
 }

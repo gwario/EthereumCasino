@@ -41,8 +41,8 @@ module.exports = function(deployer, network, accounts) {
     const GAMBLING_HALL_OWNER = accounts[2];
     const SLOTMACHINE_SUPERVISER = accounts[3];
 
-    const CASINO_MANAGER = accounts[5];
-    const GAMBLING_HALL_MANAGER = accounts[6];
+    const CASINO_MANAGER = accounts[4];
+    const GAMBLING_HALL_MANAGER = accounts[5];
 
     let casinoToken;
     let gamblingHall;

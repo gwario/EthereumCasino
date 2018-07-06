@@ -8,7 +8,6 @@ import {Web3Service} from "../../service/web3.service";
 import {OnAddressChange} from "../../on-address-change";
 import BigNumber from "bignumber.js";
 import {PriceService} from "../../service/price.service";
-import BN from "bn.js";
 
 @Component({
   selector: 'app-casino',
@@ -21,8 +20,8 @@ export class CasinoComponent implements OnInit, OnAddressChange {
 
   name: string;
   opened: boolean;
-  tokenPrice: BN;
-  exchangeFee: BN;
+  tokenPrice: BigNumber;
+  exchangeFee: BigNumber;
 
   ownerAddress: string;
   managerAddress: string;
@@ -39,8 +38,8 @@ export class CasinoComponent implements OnInit, OnAddressChange {
               private web3Service: Web3Service,
               private priceService: PriceService) {
 
-    this.tokenPrice = new BN(0);
-    this.exchangeFee = new BN(0);
+    this.tokenPrice = new BigNumber(0);
+    this.exchangeFee = new BigNumber(0);
     this.tokenAddress = this.casinoTokenService.getAddress();
     this.gamblingHallAddress = this.gamblingHallService.getAddress();
 
@@ -76,12 +75,12 @@ export class CasinoComponent implements OnInit, OnAddressChange {
 
     //exchange fee
     this.web3Service.casinoContract.events.ExchangeFeeChanged()
-      .on('data', data => this.exchangeFee = new BN(data.returnValues._newExchangeFee))
+      .on('data', data => this.exchangeFee = new BigNumber(data.returnValues._newExchangeFee))
       .on('error', console.error);
 
     //token price
     this.web3Service.casinoContract.events.TokenPriceChanged()
-      .on('data', data => this.tokenPrice = new BN(data.returnValues._newTokenPrice))
+      .on('data', data => this.tokenPrice = new BigNumber(data.returnValues._newTokenPrice))
       .on('error', console.error);
   }
 

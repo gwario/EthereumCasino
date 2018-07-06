@@ -2,9 +2,6 @@ import {Injectable} from '@angular/core';
 import BigNumber from "bignumber.js";
 import {Web3Service} from "./web3.service";
 import {AddressTokensEther} from "../model/address-tokens-ether";
-import BN from "bn.js";
-
-declare let window: any;
 
 @Injectable({
   providedIn: 'root'
@@ -14,16 +11,26 @@ export class CasinoTokenService {
   constructor(private web3Service: Web3Service) {}
 
 
-  transfer(to: string, value: BN, data: string, from: string): Promise<boolean> {
-    return this.web3Service.casinoTokenContract.methods['transfer(address,uint256,bytes)'](to, value, window.web3.utils.fromUtf8(data)).send({from: from});
+  transfer(to: string, value: BigNumber, data: string, from: string): Promise<boolean> {
+
+    return new Promise<boolean>((resolve, reject) =>
+
+      this.web3Service.casinoTokenContract.methods['transfer(address,uint256,bytes)'](to, this.web3Service.toBN(value), this.web3Service.utf8ToHex(data))
+        .estimateGas({from: from}).then(estimatedGas => {
+          console.log("transfer.estimatedGas", estimatedGas);
+          this.web3Service.casinoTokenContract.methods['transfer(address,uint256,bytes)'](to, this.web3Service.toBN(value), this.web3Service.utf8ToHex(data))
+            .send({from: from, gas: 2*estimatedGas}) // probably the reason for some reverts... just to be sure...
+            .then(success => resolve(success))
+            .catch(reason => reject(reason));
+      }));
   }
 
-  produce(address: string, tokens: number, from: string): Promise<boolean> {
-    return this.web3Service.casinoTokenContract.methods.produce(address, tokens).send({from: from});
+  produce(address: string, tokens: BigNumber, from: string): Promise<boolean> {
+    return this.web3Service.casinoTokenContract.methods.produce(address, this.web3Service.toBN(tokens)).send({from: from});
   }
 
-  cashout(tokens: BN, from: string) {
-    return this.web3Service.casinoTokenContract.methods.cashout(this.web3Service.casinoContract.options.address, tokens).send({from: from});
+  cashout(tokens: BigNumber, from: string) {
+    return this.web3Service.casinoTokenContract.methods.cashout(this.web3Service.casinoContract.options.address, this.web3Service.toBN(tokens)).send({from: from});
   }
 
   getAddress(): string {
